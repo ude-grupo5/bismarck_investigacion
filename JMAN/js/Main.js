@@ -17,6 +17,7 @@ var Bismarcklateral;
 	var derHood;
 	var arribaHood;
     var abajoHood;
+    var explosionFinal;
     var explosiones;
     var mostrarVidaB = '';
     var mostrarVidaH = '';
@@ -32,8 +33,7 @@ function preload() {
     juego.load.image('bala1','sprites/balaB.png');
     juego.load.image('bala2','sprites/balaH.png');
     juego.load.spritesheet('explosion', 'sprites/explosion.png', 128, 128);
-    //juego.load.spritesheet('explosion', 'sprites/explosion1.png', 64, 64, 23);
-    //vidaHood = 100;
+    juego.load.spritesheet('explosion1', 'sprites/explosion1.png', 64, 64);
 } 
 
 function create() {
@@ -96,8 +96,14 @@ function create() {
 
     
     //  Explosiones
+    explosionFinal = juego.add.group();
+    explosionFinal.createMultiple(30, 'explosion');
+    explosionFinal.forEach(setExplosionFinal, this);
+
+
+
     explosiones = juego.add.group();
-    explosiones.createMultiple(30, 'explosion');
+    explosiones.createMultiple(30, 'explosion1');
     explosiones.forEach(setExplosiones, this);
 
     
@@ -115,17 +121,26 @@ function setExplosiones (entrada) {
 
     entrada.anchor.x = 0.5;
     entrada.anchor.y = 0.5;
-    entrada.animations.add('explosion');
+    entrada.animations.add('explosion1');
 
 }
 
+function setExplosionFinal (entrada) {
+
+    entrada.anchor.x = 0.5;
+    entrada.anchor.y = 0.5;
+    entrada.animations.add('explosion');
+
+}
 function update() {
         //Logica del Juego como los movimientos, las colisiones, el movimiento del personaje, etc
                     
         //juego.physics.arcade.overlap(balaBismarck.bullets, Hood, disparoBismarck, null, this);
-        juego.physics.arcade.overlap(balaHood.bullets, Bismarck, disparoHood, null, this);
+        //juego.physics.arcade.overlap(balaHood.bullets, Bismarck, disparoHood, null, this);
 
         juego.physics.arcade.collide(balaBismarck.bullets, Hood, disparoBismarck); 
+        juego.physics.arcade.collide(balaHood.bullets, Bismarck, disparoHood); 
+
         //Con esto se genera que los barcos colisionen
         juego.physics.arcade.collide(Bismarck,Hood);
         juego.physics.arcade.collide(Hood,Bismarck);
@@ -135,6 +150,7 @@ function update() {
         Bismarck.body.velocity.y = 0;
         Hood.body.velocity.x = 0;
         Hood.body.velocity.y = 0;
+        
         if (controles.left.isDown) {
             Bismarck.angle = 180;                       
             Bismarck.body.velocity.x = -100;
@@ -185,17 +201,34 @@ function update() {
         }
 }
 
-function disparoHood() {
-    Bismarck.kill();
+function disparoHood(enemigo,bala) {
+    bala.kill();
+        
+    var explota = explosiones.getFirstExists(false);
+    explota.reset(Bismarck.body.x, Bismarck.body.y);
+    explota.play('explosion1', 30, false, true);
+    
+    vidaBismarck = vidaBismarck - 25;
+    console.log(vidaBismarck);
+    mostrarVidaB.text = 'Vida Bismark : ' + vidaBismarck + '%';
+    mostrarVidaB.visible = true;
+    
+    if(vidaBismarck <= 0){
+        var explotaFin = explosionFinal.getFirstExists(false);
+        explotaFin.reset(Bismarck.body.x, Bismarck.body.y);
+        explotaFin.play('explosion', 30, false, true);
+        Bismarck.kill();
+        estado.text = " El BISMARK ha sido hundido";
+        estado.visible = true;   
+    }
 }
 
 function disparoBismarck (enemigo,bala) {
     bala.kill();
         
-    
         var explota = explosiones.getFirstExists(false);
         explota.reset(Hood.body.x, Hood.body.y);
-        explota.play('explosion', 30, false, true);
+        explota.play('explosion1', 30, false, true);
         
         vidaHood = vidaHood - 25;
         console.log(vidaHood);
@@ -203,9 +236,9 @@ function disparoBismarck (enemigo,bala) {
         mostrarVidaH.visible = true;
         
     if(vidaHood <= 0){
-        var explota = explosiones.getFirstExists(false);
-        explota.reset(Hood.body.x, Hood.body.y);
-        explota.play('explosion', 30, false, true);
+        var explotaFin = explosionFinal.getFirstExists(false);
+        explotaFin.reset(Hood.body.x, Hood.body.y);
+        explotaFin.play('explosion', 30, false, true);
         Hood.kill();
         estado.text = " El HOOD ha sido hundido";
         estado.visible = true;   
