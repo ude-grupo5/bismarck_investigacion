@@ -1,0 +1,6 @@
+Logica/Fachada.class
+Persistencia/DAOPartida.class
+Persistencia/DAOJugador.class
+Logica/Jugador.class
+Logica/Partida.class
+Servidor/WebSocket.class
