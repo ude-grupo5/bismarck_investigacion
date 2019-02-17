@@ -30,27 +30,67 @@ var Bismarcklateral;
     var vidaBismarck = 100;
     var vidaHood = 100;
     var estado;
+	/*-------------------------------------*/
+	var mapa;
+    var capa;
+    var mapaData;
+    var mapaData2;
+	var capaNieblaBismarck;
+    var capaNieblaHood;
+    var nieblaSprite;
+    var franja;
+    var fondo;
+    var vision;
+	/*-------------------------------------*/
 
 
 JuegoPrincipal.preload = function() {
     juego.load.image('escenario','sprites/escenario.png');
-    juego.load.spritesheet('barco','sprites/barco.png',51,55);
+    juego.load.tilemap('map', 'sprites/Tile/Mapa.csv', null, Phaser.Tilemap.CSV);
+    juego.load.image('tiles', 'sprites/Tile/forest_tiles.png');
+	juego.load.spritesheet('barco','sprites/barco.png',51,55);
     juego.load.spritesheet('barco2','sprites/barco.png',51,55);
     juego.load.image('bala1','sprites/balaB.png');
     juego.load.image('bala2','sprites/balaH.png');
     juego.load.spritesheet('explosion', 'sprites/explosion.png', 128, 128);
     juego.load.spritesheet('explosion1', 'sprites/explosion1.png', 64, 64);
+    juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
 } 
 
 JuegoPrincipal.create = function() {
 
     //Se crea el personaje, los enemigos, los sonidos, el fondo del game, etc
-    
-    juego.stage.disableVisibilityChange = true;
-    juego.physics.startSystem(Phaser.Physics.ARCADE);
-    juego.add.sprite(0, 0, 'escenario'); 
 
-    /*-------------------------------------------------------------------------------------------------------------------*/
+    //agregar fisica
+	juego.physics.startSystem(Phaser.Physics.ARCADE);
+	juego.world.setBounds(0, 0, 1920, 1200);
+	juego.add.sprite(0, 0, 'escenario'); 
+    
+	//se agrega el fondo. 
+	mapa = juego.add.tilemap('map', 32, 32);
+	mapa.addTilesetImage('tiles');
+	capa = mapa.createLayer(0);
+	capa.resizeWorld();
+	mapa.setCollisionBetween(0, 44);
+
+    //Niebla Bismarck
+	capaNieblaBismarck = new Phaser.Circle(200, 400, 500);
+    franja = 50;
+    mapaData = juego.make.bitmapData(800, 600);
+    actualizarNieblaBismarck();
+    nieblaSprite = mapaData.addToWorld();
+    nieblaSprite.fixedToCamera = true;
+	
+    //Niebla Hood
+	/*capaNieblaHood = new Phaser.Circle(200, 400, 500);
+    franja = 40;
+    mapaData2 = juego.make.bitmapData(800, 600);
+    actualizarNieblaHood();
+    nieblaSprite = mapaData2.addToWorld();
+    nieblaSprite.fixedToCamera = true;*/
+	
+    
+	/*-------------------------------------------------------------------------------------------------------------------*/
     //Mostrar vidas 
     mostrarVidaB = 'Vida Bismarck : ';
     mostrarVidaB = juego.add.text(10, 10, mostrarVidaB + vidaBismarck + "%", { font: '20px Arial', fill: '#fff' });
@@ -66,7 +106,7 @@ JuegoPrincipal.create = function() {
     /*-------------------------------------------------------------------------------------------------------------------*/
     
     //Carga del barco Bismarck
-    Bismarck = juego.add.sprite(51, juego.world.height - 200,'barco');
+    Bismarck = juego.add.sprite(2400, juego.world.height - 200,'barco');
     Bismarck.scale.setTo(0.5,0.5);
     Bismarck.anchor.setTo(0.5,0.5);
     Bismarck.angle = 180;
@@ -75,6 +115,7 @@ JuegoPrincipal.create = function() {
     Bismarck.enablebody = true;
     Bismarck.body.collideWorldBounds = true;
     
+	
     //Carga del barco Hood
     Hood = juego.add.sprite(450, juego.world.height - 200,'barco2');
     Hood.scale.setTo(0.5,0.5);
@@ -84,14 +125,19 @@ JuegoPrincipal.create = function() {
     Hood.body.inmovable = true;
     Hood.enablebody = true;
     Hood.body.collideWorldBounds = true;
+	
+	
     //carga bala Bismarck
     balaBismarck = juego.add.weapon(1, 'bala1');	
     juego.physics.arcade.enable(balaBismarck);
-    balaBismarck.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+    balaBismarck.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
+    balaBismarck.bulletKillDistance = 230;
     balaBismarck.bulletAngleOffset = 300;
     balaBismarck.bulletSpeed = 500;
     balaBismarck.trackSprite(Bismarck, 0, 0, true);
 
+	
+	
     //carga bala Hood
     balaHood = juego.add.weapon(1, 'bala2');	
     juego.physics.arcade.enable(balaHood);
@@ -107,7 +153,6 @@ JuegoPrincipal.create = function() {
     explosionFinal.forEach(setExplosionFinal, this);
 
 
-
     explosiones = juego.add.group();
     explosiones.createMultiple(30, 'explosion1');
     explosiones.forEach(setExplosiones, this);
@@ -121,6 +166,16 @@ JuegoPrincipal.create = function() {
     arribaHood = juego.input.keyboard.addKey(Phaser.Keyboard.W);
     abajoHood = juego.input.keyboard.addKey(Phaser.Keyboard.S);
     fuegoHood = juego.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
+        
+    //Camara
+    juego.camera.follow(Bismarck,Phaser.Camera.FOLLOW_PLATFORMER);
+    //juego.camera.follow(Hood,Phaser.Camera.FOLLOW_PLATFORMER);
+    juego.minimap = juego.cameras.add(200, 10, 400, 100).setZoom(0.2).setName('mini');
+    juego.minimap.setBackgroundColor(0x002244);
+    juego.minimap.scrollX = 1600;
+    juego.minimap.scrollY = 300;
+
+
 }
 
 JuegoPrincipal.update = function() {
@@ -138,10 +193,17 @@ JuegoPrincipal.update = function() {
         
         
         Bismarck.body.velocity.x = 0;
-        Bismarck.body.velocity.y = 0;
+        Bismarck.body.velocity.y = 0;  
+        capaNieblaBismarck.x = Bismarck.x;
+        capaNieblaBismarck.y = Bismarck.y;
+
+    
         Hood.body.velocity.x = 0;
         Hood.body.velocity.y = 0;
-        
+        //capaNieblaHood.x = Hood.x;
+        //capaNieblaHood.y = Hood.y;
+
+    
         if (controles.left.isDown) {
             Bismarck.angle = 180;                       
             Bismarck.body.velocity.x = -100;
@@ -191,6 +253,11 @@ JuegoPrincipal.update = function() {
         if (fuegoHood.isDown){
             balaHood.fire();
         }
+    
+    actualizarNieblaBismarck();
+    //actualizarNieblaHood();
+
+    
 }
 
 
@@ -207,6 +274,14 @@ function setExplosionFinal (entrada) {
     entrada.anchor.x = 0.5;
     entrada.anchor.y = 0.5;
     entrada.animations.add('explosion');
+
+}
+
+function setExplosionAgua (entrada) {
+
+    entrada.anchor.x = 0.5;
+    entrada.anchor.y = 0.5;
+    entrada.animations.add('explosionA');
 
 }
 
@@ -256,7 +331,46 @@ function disparoBismarck (enemigo,bala) {
     }
 }
 
+function actualizarNieblaBismarck ()
+{  
+    var gradient = mapaData.context.createRadialGradient(
+        capaNieblaBismarck.x - juego.camera.x,
+        capaNieblaBismarck.y - juego.camera.y,
+        capaNieblaBismarck.radius,
+        capaNieblaBismarck.x - juego.camera.x,
+        capaNieblaBismarck.y - juego.camera.y,
+        capaNieblaBismarck.radius - franja
+    );
 
+    gradient.addColorStop(0, 'rgba(0,0,0,0.8');
+    gradient.addColorStop(0.4, 'rgba(0,0,0,0.5');
+    gradient.addColorStop(1, 'rgba(0,0,0,0');
+
+    mapaData.clear();
+    mapaData.context.fillStyle = gradient;
+    mapaData.context.fillRect(0, 0, 800, 600);
+}
+/*
+function actualizarNieblaHood ()
+{  
+    var gradient = mapaData.context.createRadialGradient(
+        capaNieblaHood.x - juego.camera.x,
+        capaNieblaHood.y - juego.camera.y,
+        capaNieblaHood.radius,
+        capaNieblaHood.x - juego.camera.x,
+        capaNieblaHood.y - juego.camera.y,
+        capaNieblaHood.radius - franja
+    );
+
+    gradient.addColorStop(0, 'rgba(0,0,0,0.8');
+    gradient.addColorStop(0.4, 'rgba(0,0,0,0.5');
+    gradient.addColorStop(1, 'rgba(0,0,0,0');
+
+    mapaData.clear();
+    mapaData.context.fillStyle = gradient;
+    mapaData.context.fillRect(0, 0, 800, 600);
+}
+*/
 
 function preloadLateral()
 {
