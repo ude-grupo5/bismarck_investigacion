@@ -12,6 +12,7 @@ JuegoPrincipal.init = function(){
 var Bismarcklateral;
 
 //Declaracion de variables desde arriba
+    var barcoJugador;
     var Bismarck;
     var Hood;
     var balaBismarck;
@@ -128,7 +129,9 @@ JuegoPrincipal.create = function() {
     Hood.body.inmovable = true;
     Hood.enablebody = true;
     Hood.body.collideWorldBounds = true;
-	
+
+	// asoignar barco al jugador
+	asignarBarcoJugador();
 	
     //carga bala Bismarck
     balaBismarck = juego.add.weapon(1, 'bala1');	
@@ -171,7 +174,7 @@ JuegoPrincipal.create = function() {
     fuegoHood = juego.input.keyboard.addKey(Phaser.Keyboard.SHIFT);
         
     //Camara
-    juego.camera.follow(Bismarck,Phaser.Camera.FOLLOW_PLATFORMER);
+    juego.camera.follow(barcoJugador,Phaser.Camera.FOLLOW_PLATFORMER);
     //juego.camera.follow(Hood,Phaser.Camera.FOLLOW_PLATFORMER);
     juego.minimap = juego.cameras.add(200, 10, 400, 100).setZoom(0.2).setName('mini');
     juego.minimap.setBackgroundColor(0x002244);
@@ -264,6 +267,14 @@ JuegoPrincipal.update = function() {
     
 }
 
+function asignarBarcoJugador() {
+    let barcoElegido = obtenerBarcoURL();
+    if (barcoElegido == "Bismarck") {
+        barcoJugador = Bismarck;
+    } else if (barcoElegido == "Hood") {
+        barcoJugador = Hood;
+    }
+}
 
 function setExplosiones (entrada) {
 
@@ -458,7 +469,7 @@ function procesarMovimiento() {
         abajo: false,
         derecha: false,
         izquierda: false
-    }
+    };
 
     if (controles.left.isDown) {
         movimiento.barco = "Bismarck";
@@ -508,4 +519,11 @@ function procesarMovimiento() {
 function enviarMovimiento(movimiento) {
     var json = JSON.stringify(movimiento);
     websocket.send(json);
+}
+
+function obtenerBarcoURL() {
+    let url_string = window.location.href;
+    let url = new URL(url_string);
+    let barco = url.searchParams.get("barco");
+    return barco;
 }
