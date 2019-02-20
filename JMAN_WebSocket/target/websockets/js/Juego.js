@@ -13,6 +13,7 @@ var Bismarcklateral;
 
 //Declaracion de variables desde arriba
     var barcoJugador;
+    var barcoEnemigo;
     var Bismarck;
     var Hood;
     var balaBismarck;
@@ -118,6 +119,7 @@ JuegoPrincipal.create = function() {
     Bismarck.body.inmovable = true;
     Bismarck.enablebody = true;
     Bismarck.body.collideWorldBounds = true;
+    Bismarck.nombre = "Bismarck";
     
 	
     //Carga del barco Hood
@@ -129,9 +131,10 @@ JuegoPrincipal.create = function() {
     Hood.body.inmovable = true;
     Hood.enablebody = true;
     Hood.body.collideWorldBounds = true;
+    Hood.nombre = "Hood";
 
-	// asoignar barco al jugador
-	asignarBarcoJugador();
+	// asoignar barcos
+	asignarBarcos();
 	
     //carga bala Bismarck
     balaBismarck = juego.add.weapon(1, 'bala1');	
@@ -209,49 +212,29 @@ JuegoPrincipal.update = function() {
         //capaNieblaHood.x = Hood.x;
         //capaNieblaHood.y = Hood.y;
 
-    /*
+    
         if (controles.left.isDown) {
-            Bismarck.angle = 180;                       
-            Bismarck.body.velocity.x = -100;
+            barcoJugador.angle = 180;                       
+            barcoJugador.body.velocity.x = -100;
             
         }
         else if (controles.right.isDown) {
-            Bismarck.angle = 360;
-            Bismarck.body.velocity.x = 100;
+            barcoJugador.angle = 360;
+            barcoJugador.body.velocity.x = 100;
 
         }
         else if (controles.up.isDown) {
-            Bismarck.angle = 270;
-            Bismarck.body.velocity.y = -100;
+            barcoJugador.angle = 270;
+            barcoJugador.body.velocity.y = -100;
 
         }
         else if (controles.down.isDown) {
-            Bismarck.angle = 90;					
-            Bismarck.body.velocity.y = 100;				
+            barcoJugador.angle = 90;					
+            barcoJugador.body.velocity.y = 100;				
         }
 
-
-        /*
-        if (izqHood.isDown) {
-            Hood.angle = 180;                       
-            Hood.body.velocity.x = -100;
-            
-        }
-        else if (derHood.isDown) {
-            Hood.angle = 360;
-            Hood.body.velocity.x = 100;
-
-        }
-        else if (arribaHood.isDown) {
-            Hood.angle = 270;
-            Hood.body.velocity.y = -100;
-
-        }
-        else if (abajoHood.isDown) {
-            Hood.angle = 90;					
-            Hood.body.velocity.y = 100;				
-        }*/
-        procesarMovimiento();
+        enviarPosicion();
+        //procesarMovimiento();
 
         if (fuegoBismarck.isDown){
             balaBismarck.fire();
@@ -267,12 +250,14 @@ JuegoPrincipal.update = function() {
     
 }
 
-function asignarBarcoJugador() {
+function asignarBarcos() {
     let barcoElegido = obtenerBarcoURL();
     if (barcoElegido == "Bismarck") {
         barcoJugador = Bismarck;
+        barcoEnemigo = Hood;
     } else if (barcoElegido == "Hood") {
         barcoJugador = Hood;
+        barcoEnemigo = Bismarck;
     }
 }
 
@@ -420,13 +405,30 @@ function conectarWebsocket() {
     var host = document.location.host;
     var pathname = document.location.pathname;
 
-    websocket = new WebSocket("ws://" +host  + pathname + "partida/");
+    //websocket = new WebSocket("ws://" +host  + pathname + "partida/");
+    websocket = new WebSocket("ws://" +host  + "/websockets/partida/");
 
     websocket.onmessage = function(event) {
-        console.log(event.data);
-        var movimiento = JSON.parse(event.data);
-        aplicarMovimiento(movimiento);
+        //console.log(event.data);
+        var posiciones = JSON.parse(event.data);
+        //aplicarMovimiento(movimiento);
+        actualizarPosicionEnemigo(posiciones);
     };
+}
+
+function actualizarPosicionEnemigo(posiciones) {
+
+    if (barcoEnemigo.nombre == "Hood") {
+        //console.log("entra hood");
+        Hood.position.x = posiciones.xHood;
+        Hood.position.y = posiciones.yHood;
+        Hood.angle = posiciones.anguloHood;
+    } else if (barcoEnemigo.nombre == "Bismarck") {
+        //console.log("entra bismarck");
+        Bismarck.position.x = posiciones.xBismarck;
+        Bismarck.position.y = posiciones.yBismarck;
+        Bismarck.angle = posiciones.anguloBismarck;
+    }
 }
 
 function aplicarMovimiento(movimiento) {
@@ -460,6 +462,26 @@ function aplicarMovimiento(movimiento) {
     }
 }
 
+function enviarPosicion() {
+    let posiciones = {
+        xBismarck: Bismarck.position.x,
+        yBismarck: Bismarck.position.y,
+        anguloBismarck: Bismarck.angle,
+        xHood: Hood.position.x,
+        yHood: Hood.position.y,
+        anguloHood: Hood.angle
+    };
+
+    enviarPosiciones(posiciones);
+}
+
+
+
+function enviarPosiciones(posiciones) {
+    let json = JSON.stringify(posiciones);
+    websocket.send(json);
+}
+/*
 function procesarMovimiento() {
 
     let hayMovimiento = false;
@@ -520,7 +542,7 @@ function enviarMovimiento(movimiento) {
     var json = JSON.stringify(movimiento);
     websocket.send(json);
 }
-
+*/
 function obtenerBarcoURL() {
     let url_string = window.location.href;
     let url = new URL(url_string);
