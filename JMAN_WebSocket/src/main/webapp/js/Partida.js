@@ -79,7 +79,8 @@ export default class Partida {
     cargarSpritesheets() {
         //this.juego.load.spritesheet('barco','sprites/barco.png',51,55);
         this.juego.load.spritesheet('bismarck','sprites/Modelo_bismarck.png');
-        this.juego.load.spritesheet('barco2','sprites/barco.png',51,55);
+        //this.juego.load.spritesheet('barco2','sprites/barco.png',51,55);
+        this.juego.load.spritesheet('hood','sprites/Modelo_hood.png');
         this.juego.load.spritesheet('explosion', 'sprites/explosion.png', 128, 128);
         this.juego.load.spritesheet('explosion1', 'sprites/explosion1.png', 64, 64);
         this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
@@ -212,8 +213,8 @@ export default class Partida {
         this.bismarck.velocidadActual = 0;
         
         // hood
-        this.hood = this.juego.add.sprite(450, this.juego.world.height - 200,'barco2');
-        this.hood.scale.setTo(0.5,0.5);
+        this.hood = this.juego.add.sprite(450, this.juego.world.height - 200,'hood');
+        this.hood.scale.setTo(0.2,0.2);
         this.hood.anchor.setTo(0.5,0.5);
         this.hood.angle = 150;
         
