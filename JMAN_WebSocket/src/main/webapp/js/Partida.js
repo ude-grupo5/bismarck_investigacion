@@ -57,7 +57,7 @@ export default class Partida {
         this.updateMovimientoJugador();
         this.updateDisparos();
         this.updateNiebla();
-        this.enviarPosicion();
+        this.enviarEstadoPartida();
         this.actualizarVidasMarcador();
     }
 
@@ -97,23 +97,37 @@ export default class Partida {
         this.websocket.partida = this;
     
         this.websocket.onmessage = function(event) {
-            let posiciones = JSON.parse(event.data);
-            this.partida.actualizarPosicionEnemigo(posiciones);
+            let estadoPartida = JSON.parse(event.data);
+            this.partida.actualizarEstadoPartida(estadoPartida);
         };
     }
 
-    actualizarPosicionEnemigo(posiciones) {
-
-        if (this.barcoEnemigo.nombre == "Hood") {
-            //console.log("entra hood");
-            this.hood.position.x = posiciones.xHood;
-            this.hood.position.y = posiciones.yHood;
-            this.hood.angle = posiciones.anguloHood;
-        } else if (this.barcoEnemigo.nombre == "Bismarck") {
-            //console.log("entra bismarck");
-            this.bismarck.position.x = posiciones.xBismarck;
-            this.bismarck.position.y = posiciones.yBismarck;
-            this.bismarck.angle = posiciones.anguloBismarck;
+    actualizarEstadoPartida(estadoPartida) {
+        console.log(this.barcoEnemigo);
+        if (estadoPartida.sender == this.barcoEnemigo.nombre) {
+            if (this.barcoEnemigo.nombre == "Hood") {
+                //console.log("entra hood");
+                this.hood.position.x = estadoPartida.xHood;
+                this.hood.position.y = estadoPartida.yHood;
+                this.hood.angle = estadoPartida.anguloHood;
+                if (estadoPartida.impactadoBismarck) {
+                    this.bismarck.vida -= 25;
+                }
+            } else if (this.barcoEnemigo.nombre == "Bismarck") {
+                //console.log("entra bismarck");
+                this.bismarck.position.x = estadoPartida.xBismarck;
+                this.bismarck.position.y = estadoPartida.yBismarck;
+                this.bismarck.angle = estadoPartida.anguloBismarck;
+                if (estadoPartida.impactadoHood) {
+                    this.hood.vida -= 25;
+                }
+            }
+        }
+        if (estadoPartida.fuegoHood) {
+            this.hood.canionFrontal.fire();
+        }
+        if (estadoPartida.fuegoBismarck) {
+            this.bismarck.canionFrontal.fire();
         }
     }
 
@@ -322,6 +336,8 @@ export default class Partida {
         let balasBismarck = this.bismarck.canionFrontal.bullets;
         let balasHood = this.hood.canionFrontal.bullets;
 
+        this.resetearImpactos();
+
         // colision balas
         arcade.collide(this.hood, balasBismarck, this.impactoBala, function(){return true;}, this);
         arcade.collide(this.bismarck, balasHood, this.impactoBala, function(){return true;}, this);
@@ -329,6 +345,11 @@ export default class Partida {
         // colision entre barcos
         arcade.collide(this.bismarck, this.hood);
         arcade.collide(this.hood, this.bismarck);
+    }
+
+    resetearImpactos() {
+        this.hood.impactado = false;
+        this.bismarck.impactado = false;
     }
     
     impactoBala(barco, bala) {
@@ -338,7 +359,8 @@ export default class Partida {
         explosionImpacto.reset(barco.body.x, barco.body.y);
         explosionImpacto.play('explosion1', 30, false, true);
         
-        barco.vida -= 25;
+        //barco.vida -= 25;
+        barco.impactado = true;
         
         if (barco.vida <= 0) {
             let explosionFinal = this.explosiones.final.getFirstExists(false);
@@ -404,7 +426,10 @@ export default class Partida {
 
     updateDisparos() {
         if (this.controles.fuegoFrontal.isDown) {
-            this.barcoJugador.canionFrontal.fire();
+            //this.barcoJugador.canionFrontal.fire();
+            this.barcoJugador.fuego = true;
+        } else {
+            this.barcoJugador.fuego = false;
         }
     }
 
@@ -428,21 +453,26 @@ export default class Partida {
         bitmapData.context.fillRect(0, 0, 800, 600);
     }
 
-    enviarPosicion() {
-        let posiciones = {
+    enviarEstadoPartida() {
+        let estadoPartida = {
+            sender: this.barcoJugador.nombre,
             xBismarck: this.bismarck.position.x,
             yBismarck: this.bismarck.position.y,
             anguloBismarck: this.bismarck.angle,
+            fuegoBismarck: this.bismarck.fuego,
+            impactadoBismarck: this.bismarck.impactado,
             xHood: this.hood.position.x,
             yHood: this.hood.position.y,
-            anguloHood: this.hood.angle
+            anguloHood: this.hood.angle,
+            fuegoHood: this.hood.fuego,
+            impactadoHood: this.hood.impactado
         };
     
-        this.enviarPosiciones(posiciones);
+        this.enviarJSON(estadoPartida);
     }
 
-    enviarPosiciones(posiciones) {
-        let json = JSON.stringify(posiciones);
+    enviarJSON(objeto) {
+        let json = JSON.stringify(objeto);
         this.websocket.send(json);
     }
     
