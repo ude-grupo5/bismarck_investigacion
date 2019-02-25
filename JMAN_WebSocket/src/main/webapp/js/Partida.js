@@ -375,8 +375,8 @@ export default class Partida {
         if (barco.impactado) {
             barco.vida -= 25;
         }
-        if (barco.vida <= 0) {
-            mostrarExplosionFinal(barco);
+        if (barco.vida <= 0 && barco.visible) {
+            this.mostrarExplosionFinal(barco);
             barco.kill();
             this.comunicarHundimiento(barco);
         }

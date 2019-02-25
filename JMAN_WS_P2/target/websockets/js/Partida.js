@@ -31,7 +31,7 @@ export default class Partida {
         this.controles = null;
 
         // estado enviado por el servidor
-        this.estadosRecibidos = [];
+        this.estadosPartidaActualizado = null;
     }
 
     /*************************************************************************
@@ -327,20 +327,21 @@ export default class Partida {
         }
     }
 
-    procesarEstado(estadoPartida) {
+    procesarEstado() {
         if (estadoPartida.jugador == this.barcoEnemigo.nombre) {
-            this.procesarEstadoEnemigo(estadoPartida);
+            this.procesarEstadoEnemigo();
         } else if (estadoPartida.fuegoProa) {
             this.barcoJugador.canionProa.fire();
         }
     }
 
-    procesarEstadoEnemigo(estadoPartida) {
+    procesarEstadoEnemigo() {
         this.barcoEnemigo.body.x = estadoPartida.x;
         this.barcoEnemigo.body.y = estadoPartida.y;
         this.barcoEnemigo.angle = estadoPartida.angulo;
         this.barcoEnemigo.body.velocity.x = estadoPartida.velocidadX;
         this.barcoEnemigo.body.velocity.y = estadoPartida.velocidadY;
+        this.enemigoImpactado = barcoJugador.impactado;
         if (estadoPartida.fuegoProa) {
             this.barcoEnemigo.canionProa.fire();
         }
@@ -367,8 +368,8 @@ export default class Partida {
     }
 
     actualizarVidas() {
-        this.actualizarVida(this.barcoJugador);
-        this.actualizarVida(this.barcoEnemigo);
+        actualizarVida(this.barcoJugador);
+        actualizarVida(this.barcoEnemigo);
     }
 
     actualizarVida(barco) {
