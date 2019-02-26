@@ -1,5 +1,6 @@
 import Controles from './Controles.js';
 import EstadoPartida from './EstadoPartida.js';
+import Barco from './Barco.js';
 
 export default class Partida {
     
@@ -47,24 +48,20 @@ export default class Partida {
     }
 
     create() {
-
         this.deshabilitarPerdidaFoco();
         this.iniciarFisica();
         this.crearFondo();
         this.crearNiebla();
         this.crearMarcador();
+        this.crearExplosiones();
         this.crearBarcos();
         this.asignarBarcos();
         this.crearArmas();
-        this.crearExplosiones();
         this.crearControles();
         this.crearCamaras();
-
-        //this.actualizarMarcador();
     }
 
     update() {
-        //Logica del game como los movimientos, las colisiones, el movimiento del personaje, etc
         this.updateColisiones();
         this.procesarEstadosRecibidos();
         this.updateMovimientoJugador();
@@ -86,13 +83,13 @@ export default class Partida {
     cargarImagenes() {
         this.juego.load.image('escenario','sprites/escenario.png');
         this.juego.load.image('tiles', 'sprites/Tile/forest_tiles.png');
-        this.juego.load.image('bala1','sprites/balaB.png');
-        this.juego.load.image('bala2','sprites/balaH.png');
+        this.juego.load.image('balaBismarck','sprites/balaB.png');
+        this.juego.load.image('balaHood','sprites/balaH.png');
+        this.juego.load.image('bismarck','sprites/Modelo_bismarck.png');
+        this.juego.load.image('hood','sprites/Modelo_hood.png');
     }
 
     cargarSpritesheets() {
-        this.juego.load.spritesheet('bismarck','sprites/Modelo_bismarck.png');
-        this.juego.load.spritesheet('hood','sprites/Modelo_hood.png');
         this.juego.load.spritesheet('explosionFinal', 'sprites/explosion.png', 128, 128);
         this.juego.load.spritesheet('explosionImpacto', 'sprites/explosion1.png', 64, 64);
         this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
@@ -143,7 +140,7 @@ export default class Partida {
         nieblaSprite.fixedToCamera = true;
 
         this.niebla = {
-            radio: 250,
+            radio: 400,
             franja: 50,
             bitmapData: bitmapData
         };
@@ -193,39 +190,74 @@ export default class Partida {
         vidaHood.cameraOffset.setTo(10, 80);
 
         this.marcador.vidaBismarck = vidaBismarck;
+        this.marcador.bismarckHundido = false;
+
         this.marcador.vidaHood = vidaHood;
+        this.marcador.hoodHundido = false;
+    }
+
+    crearExplosiones() {
+        this.explosiones = {
+            impacto: this.crearExplosion('explosionImpacto'),
+            final: this.crearExplosion('explosionFinal')
+        }
+    }
+
+    crearExplosion(nombreSprite) {
+        let explosion = this.juego.add.group();
+        explosion.createMultiple(30, nombreSprite);
+        explosion.forEach(
+            function (entrada) {
+                entrada.anchor.x = 0.5;
+                entrada.anchor.y = 0.5;
+                entrada.animations.add(nombreSprite);
+            }
+        );
+        explosion.nombre = nombreSprite;
+
+        return explosion;
     }
 
     crearBarcos() {
         // bismarck
-        this.bismarck = this.juego.add.sprite(2400, this.juego.world.height - 200, 'bismarck');
-        this.bismarck.scale.setTo(0.2,0.2);
-        this.bismarck.anchor.setTo(0.5,0.5);
-        this.bismarck.angle = 180;
-        
-        this.juego.physics.arcade.enable(this.bismarck);
-		
-        this.bismarck.enablebody = true;
-        this.bismarck.body.collideWorldBounds = true;
-        this.bismarck.nombre = "Bismarck";
-        this.bismarck.vida = 100;
-        this.bismarck.velocidadMaxima = 100;
-        this.bismarck.velocidadActual = 0;
+        let spriteBismarck = this.agregarSpriteConFisica(2400, 2700, 'bismarck', 0.2);
+        this.bismarck = new Barco(
+            'Bismarck',
+            spriteBismarck,
+            100,
+            100,
+            this.explosiones.final
+        );
         
         // hood
-        this.hood = this.juego.add.sprite(2000, this.juego.world.height - 200,'hood');
-        this.hood.scale.setTo(0.2,0.2);
-        this.hood.anchor.setTo(0.5,0.5);
-        this.hood.angle = 150;
-        
-        this.juego.physics.arcade.enable(this.hood);
-		
-        this.hood.enablebody = true;
-        this.hood.body.collideWorldBounds = true;
-        this.hood.nombre = "Hood";
-        this.hood.vida = 100;
-        this.hood.velocidadMaxima = 100;
-        this.hood.velocidadActual = 0;
+        let spriteHood = this.agregarSpriteConFisica(2000, 2700, 'hood', 0.2);
+        this.hood = new Barco(
+            'Hood',
+            spriteHood,
+            100,
+            100,
+            this.explosiones.final
+        );
+    }
+
+    /**
+     * Agrega un srite con fisica al juego y lo devuelve.
+     * @param {number} x Posicion inicial en el eje x
+     * @param {number} y Posicion inicial en el eje y
+     * @param {string} imagen Nombre de la imagen a utilizar
+     * @param {number} escalado Escalado de la imagen
+     */
+    agregarSpriteConFisica(x, y, imagen, escalado) {
+        let sprite = this.juego.add.sprite(x, y, imagen);
+        sprite.scale.setTo(escalado, escalado);
+        sprite.anchor.setTo(0.5, 0.5);
+
+        this.juego.physics.arcade.enable(sprite);
+
+        sprite.enablebody = true;
+        sprite.body.collideWorldBounds = true;
+
+        return sprite;
     }
 
     asignarBarcos() {
@@ -248,47 +280,27 @@ export default class Partida {
 
     crearArmas() {
         // canion frontal bismarck
-        let canionProaBismarck = this.juego.add.weapon(1, 'bala1');
-        canionProaBismarck.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
-        canionProaBismarck.bulletKillDistance = 230;
-        canionProaBismarck.bulletAngleOffset = 300;
-        canionProaBismarck.bulletSpeed = 500;
-        canionProaBismarck.trackSprite(this.bismarck, 0, 0, true);
-
-        this.juego.physics.arcade.enable(canionProaBismarck);
-        this.bismarck.canionProa = canionProaBismarck;
+        this.crearCanionProa(this.bismarck, 'balaBismarck');
     
         // canionProa hood
-        let canionProaHood = this.juego.add.weapon(1, 'bala2');
-        canionProaHood.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
-        canionProaHood.bulletKillDistance = 230;
-        canionProaHood.bulletAngleOffset = 300;
-        canionProaHood.bulletSpeed = 500;
-        canionProaHood.trackSprite(this.hood, 0, 0, true);
-        
-        this.juego.physics.arcade.enable(canionProaHood);
-        this.hood.canionProa = canionProaHood;
+        this.crearCanionProa(this.hood, 'balaHood');
     }
 
-    crearExplosiones() {
-        this.explosiones = {
-            impacto: this.crearExplosion('explosionImpacto'),
-            final: this.crearExplosion('explosionFinal')
-        }
-    }
+    /**
+     * Crea el canion de proa del barco
+     * @param {Barco} barco 
+     * @param {string} bala Nombre de la imagen de la bala
+     */
+    crearCanionProa(barco, bala) {
+        let canion = this.juego.add.weapon(1, bala);
+        canion.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
+        canion.bulletKillDistance = this.niebla.radio;
+        canion.bulletAngleOffset = 300;
+        canion.bulletSpeed = 500;
+        canion.trackSprite(barco.sprite, 0, 0, true);
 
-    crearExplosion(nombreSprite) {
-        let explosion = this.juego.add.group();
-        explosion.createMultiple(30, nombreSprite);
-        explosion.forEach(
-            function (entrada) {
-                entrada.anchor.x = 0.5;
-                entrada.anchor.y = 0.5;
-                entrada.animations.add(nombreSprite);
-            }
-        );
-
-        return explosion;
+        this.juego.physics.arcade.enable(canion);
+        barco.canionProa = canion;
     }
 
     crearControles() {
@@ -296,7 +308,7 @@ export default class Partida {
     }
 
     crearCamaras() {
-        this.juego.camera.follow(this.barcoJugador,Phaser.Camera.FOLLOW_PLATFORMER);
+        this.juego.camera.follow(this.barcoJugador.sprite, Phaser.Camera.FOLLOW_PLATFORMER);
     }
 
     /*************************************************************************
@@ -308,15 +320,12 @@ export default class Partida {
         let balasBismarck = this.bismarck.canionProa.bullets;
         let balasHood = this.hood.canionProa.bullets;
 
-        this.resetearImpactos();
-
         // colision balas
-        arcade.collide(this.hood, balasBismarck, this.impactoBala, function(){return true;}, this);
-        arcade.collide(this.bismarck, balasHood, this.impactoBala, function(){return true;}, this);
+        arcade.collide(this.hood.sprite, balasBismarck, this.impactoBala, function(){return true;}, this);
+        arcade.collide(this.bismarck.sprite, balasHood, this.impactoBala, function(){return true;}, this);
 
         // colision entre barcos
-        arcade.collide(this.bismarck, this.hood);
-        //arcade.collide(this.hood, this.bismarck);
+        arcade.collide(this.bismarck.sprite, this.hood.sprite);
     }
 
     procesarEstadosRecibidos() {
@@ -336,56 +345,45 @@ export default class Partida {
     }
 
     procesarEstadoEnemigo(estadoPartida) {
-        this.barcoEnemigo.body.x = estadoPartida.x;
-        this.barcoEnemigo.body.y = estadoPartida.y;
-        this.barcoEnemigo.angle = estadoPartida.angulo;
-        this.barcoEnemigo.body.velocity.x = estadoPartida.velocidadX;
-        this.barcoEnemigo.body.velocity.y = estadoPartida.velocidadY;
-        if (estadoPartida.fuegoProa) {
-            this.barcoEnemigo.canionProa.fire();
-        }
+        this.barcoEnemigo.aplicarEstadoPartida(estadoPartida);
         if (estadoPartida.enemigoImpactado) {
+            console.log('jugador impactado');
             this.barcoJugador.impactado = true;
         }
-    }
-
-    resetearImpactos() {
-        this.hood.impactado = false;
-        this.bismarck.impactado = false;
     }
     
     impactoBala(barco, bala) {
         bala.kill();
             
         let explosionImpacto = this.explosiones.impacto.getFirstExists(false);
-        explosionImpacto.reset(barco.body.x, barco.body.y);
+        explosionImpacto.reset(bala.body.x, bala.body.y);
         explosionImpacto.play('explosionImpacto', 30, false, true);
-        
+        console.log(barco.nombre + ' ' + this.barcoEnemigo.nombre);
         if (barco.nombre == this.barcoEnemigo.nombre) {
-            barco.impactado = true;
+            console.log('enemigo impactado');
+            this.barcoEnemigo.impactado = true;
         }
     }
 
     actualizarVidas() {
-        this.actualizarVida(this.barcoJugador);
-        this.actualizarVida(this.barcoEnemigo);
+        this.barcoJugador.actualizarVida();
+        this.barcoEnemigo.actualizarVida();
     }
 
-    actualizarVida(barco) {
-        if (barco.impactado) {
-            barco.vida -= 25;
+    actualizarMarcador() {
+        let vidaBismarck = this.bismarck.vida;
+        this.marcador.vidaBismarck.animations.play(vidaBismarck, 2, true);
+        if (!this.marcador.bismarckHundido && this.bismarck.hundido) {
+            this.marcador.bismarckHundido = true;
+            this.comunicarHundimiento(this.bismarck);
         }
-        if (barco.vida <= 0 && barco.visible) {
-            this.mostrarExplosionFinal(barco);
-            barco.kill();
-            this.comunicarHundimiento(barco);
-        }
-    }
 
-    mostrarExplosionFinal(barco) {
-        let explosionFinal = this.explosiones.final.getFirstExists(false);
-        explosionFinal.reset(barco.body.x, barco.body.y);
-        explosionFinal.play('explosionFinal', 30, false, true);
+        let vidaHood = this.hood.vida;
+        this.marcador.vidaHood.animations.play(vidaHood, 2, true);
+        if (!this.marcador.hoodHundido && this.hood.hundido) {
+            this.marcador.hoodHundido = true;
+            this.comunicarHundimiento(this.hood);
+        }
     }
 
     comunicarHundimiento(barco) {
@@ -394,52 +392,32 @@ export default class Partida {
         estadoPartida.visible = true;
     }
 
-    actualizarMarcador() {
-        let vidaBismarck = this.bismarck.vida;
-        this.marcador.vidaBismarck.animations.play(vidaBismarck, 2, true);
-
-        let vidaHood = this.hood.vida;
-        this.marcador.vidaHood.animations.play(vidaHood, 2, true);
-    }
-
     updateMovimientoJugador() {
-        let velocidadMaxima = this.barcoJugador.velocidadMaxima;
-        let velocidadAnterior = this.barcoJugador.velocidadActual;
-        
+        this.updateVelocidadJugador();
+        this.updateRotacionJugador();
+        this.juego.physics.arcade.velocityFromRotation(
+            this.barcoJugador.rotacion,
+            this.barcoJugador.velocidadActual,
+            this.barcoJugador.velocidadCuerpo
+        );
+    }
+
+    updateVelocidadJugador() {
         if (this.controles.arriba) {
-            if (velocidadAnterior < velocidadMaxima) {
-                this.barcoJugador.velocidadActual += 1;
-            }
+            this.barcoJugador.acelerarHaciaAdelante();
         } else if (this.controles.abajo) {
-            if (velocidadAnterior > (velocidadMaxima * -1)) {
-                this.barcoJugador.velocidadActual -= 1;
-            }
+            this.barcoJugador.acelerarHaciaAtras();
         } else {
-            this.disminuirVelocidad(this.barcoJugador);
-        }
-
-        if (this.barcoJugador.velocidadActual != 0) {
-            this.updateRotacion();
-            this.juego.physics.arcade.velocityFromRotation(this.barcoJugador.rotation, this.barcoJugador.velocidadActual, this.barcoJugador.body.velocity);
-        } else {
-            this.barcoJugador.body.velocity.x = 0;
-            this.barcoJugador.body.velocity.y = 0;
+            this.barcoJugador.disminuirVelocidad();
         }
     }
 
-    disminuirVelocidad(barco) {
-        if (barco.velocidadActual > 0) {
-            barco.velocidadActual -= 0.5;
-        } else if (barco.velocidadActual < 0) {
-            barco.velocidadActual += 0.5;
-        }
-    }
-
-    updateRotacion() {
+    updateRotacionJugador() {
         if (this.controles.izquierda) {
-            this.barcoJugador.angle -= 0.5;
-        } else if (this.controles.derecha) {
-            this.barcoJugador.angle += 0.5;
+            this.barcoJugador.virarABabor();
+        }
+        if (this.controles.derecha) {
+            this.barcoJugador.virarAEstribor();
         }
     }
 
