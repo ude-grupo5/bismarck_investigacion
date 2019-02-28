@@ -347,7 +347,6 @@ export default class Partida {
     procesarEstadoEnemigo(estadoPartida) {
         this.barcoEnemigo.aplicarEstadoPartida(estadoPartida);
         if (estadoPartida.enemigoImpactado) {
-            console.log('jugador impactado');
             this.barcoJugador.impactado = true;
         }
     }
@@ -358,9 +357,7 @@ export default class Partida {
         let explosionImpacto = this.explosiones.impacto.getFirstExists(false);
         explosionImpacto.reset(bala.body.x, bala.body.y);
         explosionImpacto.play('explosionImpacto', 30, false, true);
-        console.log(barco.nombre + ' ' + this.barcoEnemigo.nombre);
         if (barco.nombre == this.barcoEnemigo.nombre) {
-            console.log('enemigo impactado');
             this.barcoEnemigo.impactado = true;
         }
     }

@@ -37,4 +37,37 @@
             "shape": [   596, 29  ,  599, 113  ,  425, 12  ]
         }
     ]
+    , 
+    "Modelo_hood": [
+        
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   42, 624  ,  20, 421  ,  19, 282  ,  46, 87  ,  119, 283  ,  123.5, 420  ,  99, 626  ,  70, 732.5  ]
+        } ,
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   46, 87  ,  69, 11.5  ,  70, 11.5  ,  96, 87  ,  119, 283  ]
+        }
+    ]
+    , 
+    "Modelo_bismarck": [
+        
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   88, 32  ,  113, 143  ,  30, 142  ,  56, 32  ,  72, 13  ]
+        } ,
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   38, 585  ,  12, 415  ,  10, 352  ,  30, 142  ,  133, 337  ,  133, 399  ,  105, 586  ,  72, 729  ]
+        } ,
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   30, 142  ,  113, 143  ,  133, 337  ]
+        }
+    ]
 }
