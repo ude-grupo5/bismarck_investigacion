@@ -4,8 +4,10 @@ import Barco from './Barco.js';
 
 export default class Partida {
 
-    static get ESCALADO_BISMARCK () { return 0.1; }
-    static get ESCALADO_HOOD () { return 0.1; }
+    static get ESCALADO_BISMARCK () { return 0.15; }
+    static get ESCALADO_HOOD () { return 0.15; }
+    static get DAMPING_BARCO () { return 0.8; }
+    static get DAMPING_ANGULAR_BARCO () { return 0.6; }
     
     /**
      * Constructor
@@ -73,6 +75,8 @@ export default class Partida {
         this.enviarEstadoPartida();
         this.actualizarVidas();
         this.actualizarMarcador();
+
+        //console.log(this.barcoJugador.posicion + ' x: ' + this.barcoJugador.x + ' y: ' + this.barcoJugador.y);
     }
 
     /*************************************************************************
@@ -237,7 +241,9 @@ export default class Partida {
             2700,
             'bismarck',
             'Modelo_bismarck',
-            Partida.ESCALADO_BISMARCK
+            Partida.ESCALADO_BISMARCK,
+            Partida.DAMPING_BARCO,
+            Partida.DAMPING_ANGULAR_BARCO
         );
         this.bismarck = new Barco(
             'Bismarck',
@@ -254,7 +260,9 @@ export default class Partida {
             2700,
             'hood',
             'Modelo_hood',
-            Partida.ESCALADO_HOOD
+            Partida.ESCALADO_HOOD,
+            Partida.DAMPING_BARCO,
+            Partida.DAMPING_ANGULAR_BARCO
         );
         this.hood = new Barco(
             'Hood',
@@ -272,21 +280,22 @@ export default class Partida {
      * @param {string} imagen Nombre de la imagen a utilizar
      * @param {string} nombrePoligono Nombre del poligono que representa el cuerpo del objeto
      * @param {number} escalado Escalado de la imagen
+     * @param {number} damping De 0 a 1. Proporcion de perdida de veloidad lineal por segundo
+     * @param {number} dampingAngular De 0 a 1. Proporcion de perdida de veloidad de rotacion por segundo
      */
-    agregarSpriteConFisica(x, y, imagen, nombrePoligono, escalado) {
+    agregarSpriteConFisica(x, y, imagen, nombrePoligono, escalado, damping, dampingAngular) {
         let sprite = this.juego.add.sprite(x, y, imagen);
         sprite.scale.setTo(escalado, escalado);
         sprite.anchor.setTo(0.5, 0.5);
 
         this.juego.physics.p2.enable(sprite, true);
 
-        sprite.body.clearShapes();
-
         let physicsJSON = this.juego.cache.getJSON('sprite_physics');
         let poligono = this.poligonoEscalado(physicsJSON[nombrePoligono], escalado);
-
+        sprite.body.clearShapes();
         sprite.body.loadPolygon(null, poligono);
-
+        sprite.body.damping = damping;
+        sprite.body.angularDamping = dampingAngular;
         sprite.body.collideWorldBounds = true;
 
         return sprite;
@@ -314,6 +323,7 @@ export default class Partida {
             this.barcoJugador = this.hood;
             this.barcoEnemigo = this.bismarck;
         }
+        this.barcoEnemigo.ocultar();
     }
 
     obtenerBarcoURL() {

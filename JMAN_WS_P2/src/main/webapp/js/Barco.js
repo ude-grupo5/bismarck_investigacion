@@ -1,3 +1,5 @@
+import Canion from './Canion.js';
+
 export default class Barco {
 
     static get BABOR () { return -1; }
@@ -21,57 +23,35 @@ export default class Barco {
     //      SETTERS
     // ########################################################################
 
-    set canionProa(canion) {
-        this._canionProa = canion;
-    }
+    set canionProa (canion) {  this._canionProa = canion; }
 
-    set impactado(impactado) {
-        this._impactado = impactado;
-    }
+    set impactado (impactado) { this._impactado = impactado; }
 
     // ########################################################################
     //      GETTERS
     // ########################################################################
 
-    get canionProa() {
-        return this._canionProa;
-    }
+    get angulo () { return this.sprite.angle; }
 
-    get impactado() {
-        return this._impactado;
-    }
+    get canionProa () { return this._canionProa; }
 
-    get x() {
-        return this.sprite.body.x;
-    }
+    get impactado () { return this._impactado; }
 
-    get velocidadX() {
-        return this.sprite.body.velocity.x;
-    }
+    get posicion () { return this.sprite.position; }
 
-    get y() {
-        return this.sprite.body.y;
-    }
+    get rotacion () { return this.sprite.rotation; }
 
-    get velocidadY() {
-        return this.sprite.body.velocity.y;
-    }
+    get velocidadAbsoluta () { return Math.abs(this.velocidadActual); }
 
-    get velocidadCuerpo() {
-        return this.sprite.body.velocity;
-    }
+    get velocidadCuerpo () { return this.sprite.body.velocity; }
 
-    get velocidadAbsoluta() {
-        return Math.abs(this.velocidadActual);
-    }
+    get velocidadX () { return this.sprite.body.velocity.x; }
 
-    get rotacion() {
-        return this.sprite.rotation;
-    }
+    get velocidadY () { return this.sprite.body.velocity.y; }
 
-    get angulo() {
-        return this.sprite.angle;
-    }
+    get x () { return this.sprite.body.x; }
+
+    get y () { return this.sprite.body.y; }
 
     // ########################################################################
     //      METODOS PUBLICOS
@@ -159,7 +139,7 @@ export default class Barco {
     }
 
     _rotarCuerpo(grados) {
-        this._detenerRotacion();
+        //this._detenerRotacion();
         this.sprite.body.angle += grados;
     }
 
