@@ -3,12 +3,15 @@ import EstadoPartida from './EstadoPartida.js';
 import Barco from './Barco.js';
 
 export default class Partida {
+
+    static get ESCALADO_BISMARCK () { return 0.1; }
+    static get ESCALADO_HOOD () { return 0.1; }
     
     /**
      * Constructor
      * @param {Phaser.Game} juego El juego principal
      */
-    constructor(juego) {
+    constructor(juego) {    
 
         this.juego = juego;
         this.websocket = null;
@@ -63,7 +66,6 @@ export default class Partida {
     }
 
     update() {
-        this.updateColisiones();
         this.procesarEstadosRecibidos();
         this.updateMovimientoJugador();
         this.updateDisparos();
@@ -99,7 +101,6 @@ export default class Partida {
     }
 
     cargarSpritePhysics() {
-        //this.juego.load.physics('sprite_physics', 'sprites/sprite_physics.json');
         this.juego.load.json('sprite_physics', 'sprites/sprite_physics.json');
     }
 
@@ -147,7 +148,8 @@ export default class Partida {
 
         this.niebla = {
             radio: 400,
-            franja: 50,
+            franja: 150,
+            visibilidad: 350,
             bitmapData: bitmapData
         };
     }
@@ -225,8 +227,18 @@ export default class Partida {
     }
 
     crearBarcos() {
-        // bismarck
-        let spriteBismarck = this.agregarSpriteConFisica(2400, 2700, 'bismarck', 'Modelo_bismarck', 0.2);
+        this.crearBismarck();
+        this.crearHood();
+    }
+
+    crearBismarck() {
+        let spriteBismarck = this.agregarSpriteConFisica(
+            2400,
+            2700,
+            'bismarck',
+            'Modelo_bismarck',
+            Partida.ESCALADO_BISMARCK
+        );
         this.bismarck = new Barco(
             'Bismarck',
             spriteBismarck,
@@ -234,9 +246,16 @@ export default class Partida {
             100,
             this.explosiones.final
         );
-        
-        // hood
-        let spriteHood = this.agregarSpriteConFisica(2000, 2700, 'hood','Modelo_hood', 0.2);
+    }
+
+    crearHood() {
+        let spriteHood = this.agregarSpriteConFisica(
+            2000,
+            2700,
+            'hood',
+            'Modelo_hood',
+            Partida.ESCALADO_HOOD
+        );
         this.hood = new Barco(
             'Hood',
             spriteHood,
@@ -259,11 +278,10 @@ export default class Partida {
         sprite.scale.setTo(escalado, escalado);
         sprite.anchor.setTo(0.5, 0.5);
 
-        //this.juego.physics.arcade.enable(sprite);
         this.juego.physics.p2.enable(sprite, true);
 
         sprite.body.clearShapes();
-        //sprite.body.loadPolygon('sprite_physics', poligono);
+
         let physicsJSON = this.juego.cache.getJSON('sprite_physics');
         let poligono = this.poligonoEscalado(physicsJSON[nombrePoligono], escalado);
 
@@ -342,19 +360,6 @@ export default class Partida {
      * FUCIONES AUXILIARES UPDATE
      *************************************************************************/
     
-    updateColisiones() {
-        let arcade = this.juego.physics.arcade;
-        let balasBismarck = this.bismarck.canionProa.bullets;
-        let balasHood = this.hood.canionProa.bullets;
-
-        // colision balas
-        arcade.collide(this.hood.sprite, balasBismarck, this.impactoBala, function(){return true;}, this);
-        arcade.collide(this.bismarck.sprite, balasHood, this.impactoBala, function(){return true;}, this);
-
-        // colision entre barcos
-        //arcade.collide(this.bismarck.sprite, this.hood.sprite);
-    }
-
     procesarEstadosRecibidos() {
         let estadoPartida = this.estadosRecibidos.shift();
         while (estadoPartida) {
@@ -376,6 +381,25 @@ export default class Partida {
         if (estadoPartida.enemigoImpactado) {
             this.barcoJugador.impactado = true;
         }
+        this.procesarVisibilidadEnemigo();
+    }
+
+    procesarVisibilidadEnemigo() {
+        let separacion = this.separacion(this.barcoJugador, this.barcoEnemigo);
+        if (separacion < this.niebla.visibilidad) {
+            this.barcoEnemigo.mostrar();
+        } else {
+            this.barcoEnemigo.ocultar();
+        }
+    }
+
+    separacion(barcoA, barcoB) {
+        return Phaser.Math.distance(
+            barcoA.x,
+            barcoA.y,
+            barcoB.x,
+            barcoB.y
+        );
     }
     
     impactoBala(barco, bala) {
@@ -420,11 +444,6 @@ export default class Partida {
         this.updateVelocidadJugador();
         this.updateRotacionJugador();
         this.barcoJugador.sprite.body.moveForward(this.barcoJugador.velocidadActual);
-        /*this.juego.physics.arcade.velocityFromRotation(
-            this.barcoJugador.rotacion,
-            this.barcoJugador.velocidadActual,
-            this.barcoJugador.velocidadCuerpo
-        );*/
     }
 
     updateVelocidadJugador() {

@@ -1,5 +1,8 @@
 export default class Barco {
 
+    static get BABOR () { return -1; }
+    static get ESTRIBOR () { return 1; }
+
     constructor(nombre, sprite, vida, velocidadMaxima, explosion) {
         this.nombre = nombre;
         this.sprite = sprite;
@@ -14,6 +17,10 @@ export default class Barco {
         this.sprite.nombre = this.nombre;
     }
 
+    // ########################################################################
+    //      SETTERS
+    // ########################################################################
+
     set canionProa(canion) {
         this._canionProa = canion;
     }
@@ -21,6 +28,10 @@ export default class Barco {
     set impactado(impactado) {
         this._impactado = impactado;
     }
+
+    // ########################################################################
+    //      GETTERS
+    // ########################################################################
 
     get canionProa() {
         return this._canionProa;
@@ -50,6 +61,10 @@ export default class Barco {
         return this.sprite.body.velocity;
     }
 
+    get velocidadAbsoluta() {
+        return Math.abs(this.velocidadActual);
+    }
+
     get rotacion() {
         return this.sprite.rotation;
     }
@@ -58,28 +73,9 @@ export default class Barco {
         return this.sprite.angle;
     }
 
-    actualizarVida() {
-        if (this.impactado) {
-            console.log('bajar vida');
-            this.vida -= 25;
-            this.impactado = false;
-        }
-        if (this.vida <= 0 && !this.hundido) {
-            this.explotar();
-            this.hundir();
-        }
-    }
-
-    explotar() {
-        let explosion = this.explosion.getFirstExists(false);
-        explosion.reset(this.sprite.x, this.sprite.y);
-        explosion.play(this.explosion.nombre, 30, false, true);
-    }
-
-    hundir() {
-        this.sprite.kill();
-        this.hundido = true;
-    }
+    // ########################################################################
+    //      METODOS PUBLICOS
+    // ########################################################################
 
     acelerarHaciaAdelante() {
         let nuevaVelocidad = this.velocidadActual + 1;
@@ -91,26 +87,15 @@ export default class Barco {
         let velocidadMaximaReveresa = (this.velocidadMaxima * -1);
         this.velocidadActual = Math.max(nuevaVelocidad, velocidadMaximaReveresa);
     }
-
-    disminuirVelocidad() {
-        if (this.velocidadActual > 0) {
-            this.velocidadActual -= 0.5;
-        } else if (this.velocidadActual < 0) {
-            this.velocidadActual += 0.5;
+    
+    actualizarVida() {
+        if (this.impactado) {
+            this.vida -= 25;
+            this.impactado = false;
         }
-    }
-
-    virarABabor() {
-        if (this.velocidadActual != 0) {
-            this.sprite.body.angle -= 0.5;
-            //this.sprite.body.rotateLeft(10.5);
-        }
-    }
-
-    virarAEstribor() {
-        if (this.velocidadActual != 0) {
-            this.sprite.body.angle += 0.5;
-            //this.sprite.body.rotateRight(10.5);
+        if (this.vida <= 0 && !this.hundido) {
+            this._explotar();
+            this._hundir();
         }
     }
 
@@ -123,6 +108,63 @@ export default class Barco {
         if (estadoPartida.fuegoProa) {
             this.canionProa.fire();
         }
+    }
+
+    disminuirVelocidad() {
+        if (this.velocidadActual > 0) {
+            this.velocidadActual -= 0.5;
+        } else if (this.velocidadActual < 0) {
+            this.velocidadActual += 0.5;
+        }
+    }
+
+    mostrar() {
+        this.sprite.visible = true;
+    }
+
+    ocultar() {
+        this.sprite.visible = false;
+    }
+
+    virarABabor() {
+        this._virar(Barco.BABOR);
+    }
+
+    virarAEstribor() {
+        this._virar(Barco.ESTRIBOR);
+    }
+
+    // ########################################################################
+    //      METODOS PRIVADOS
+    // ########################################################################
+
+    _explotar() {
+        let explosion = this.explosion.getFirstExists(false);
+        explosion.reset(this.sprite.x, this.sprite.y);
+        explosion.play(this.explosion.nombre, 30, false, true);
+    }
+
+    _hundir() {
+        this.sprite.kill();
+        this.hundido = true;
+    }
+
+    /**
+     * Vira el barco en la direccion indicada en relacion a la velocidad
+     * @param {number} direccion Barco.ESTRIBOR o Barco.BABOR
+     */
+    _virar(direccion) {
+        let grados = (this.velocidadAbsoluta / 200) * direccion;
+        this._rotarCuerpo(grados);
+    }
+
+    _rotarCuerpo(grados) {
+        this._detenerRotacion();
+        this.sprite.body.angle += grados;
+    }
+
+    _detenerRotacion() {
+        this.sprite.body.setZeroRotation();
     }
     
 }
