@@ -27,6 +27,11 @@ export default class Barco {
 
     set impactado (impactado) { this._impactado = impactado; }
 
+    set grupoColision (grupoColision) {
+        this.sprite.body.setCollisionGroup(grupoColision);
+        this._grupoColision = grupoColision;
+    }
+
     // ########################################################################
     //      GETTERS
     // ########################################################################
@@ -36,6 +41,8 @@ export default class Barco {
     get canionProa () { return this._canionProa; }
 
     get impactado () { return this._impactado; }
+
+    get grupoColision () { return this._grupoColision; }
 
     get posicion () { return this.sprite.position; }
 
@@ -86,8 +93,12 @@ export default class Barco {
         this.sprite.body.velocity.x = estadoPartida.velocidadX;
         this.sprite.body.velocity.y = estadoPartida.velocidadY;
         if (estadoPartida.fuegoProa) {
-            this.canionProa.fire();
+            this.canionProa.disparar();
         }
+    }
+
+    setearColision(barco) {
+        this.sprite.body.collides(barco.grupoColision, function(){console.log('colisiona ' + this.nombre);}, this);
     }
 
     disminuirVelocidad() {
@@ -100,6 +111,10 @@ export default class Barco {
 
     mostrar() {
         this.sprite.visible = true;
+    }
+
+    mover() {
+        this.sprite.body.moveForward(this.velocidadActual);
     }
 
     ocultar() {
@@ -139,12 +154,7 @@ export default class Barco {
     }
 
     _rotarCuerpo(grados) {
-        //this._detenerRotacion();
         this.sprite.body.angle += grados;
-    }
-
-    _detenerRotacion() {
-        this.sprite.body.setZeroRotation();
     }
     
 }

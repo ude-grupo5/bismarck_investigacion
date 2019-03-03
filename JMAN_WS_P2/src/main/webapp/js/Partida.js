@@ -1,11 +1,15 @@
 import Controles from './Controles.js';
 import EstadoPartida from './EstadoPartida.js';
 import Barco from './Barco.js';
+import Bala from './Bala.js';
+import Canion from './Canion.js';
 
 export default class Partida {
 
     static get ESCALADO_BISMARCK () { return 0.15; }
+    static get ESCALADO_BALA_BISMARCK () { return 1; }
     static get ESCALADO_HOOD () { return 0.15; }
+    static get ESCALADO_BALA_HOOD () { return 1; }
     static get DAMPING_BARCO () { return 0.8; }
     static get DAMPING_ANGULAR_BARCO () { return 0.6; }
     
@@ -132,6 +136,9 @@ export default class Partida {
 
     iniciarFisica() {
         this.juego.physics.startSystem(Phaser.Physics.P2JS);
+        this.juego.physics.p2.setImpactEvents(true);
+        this.juego.physics.p2.updateBoundsCollisionGroup();
+
         this.juego.world.setBounds(0, 0, 1920, 1200);
         this.juego.add.sprite(0, 0, 'escenario');
     }
@@ -233,6 +240,9 @@ export default class Partida {
     crearBarcos() {
         this.crearBismarck();
         this.crearHood();
+
+        this.bismarck.setearColision(this.hood);
+        //this.hood.setearColision(this.bismarck);
     }
 
     crearBismarck() {
@@ -252,6 +262,7 @@ export default class Partida {
             100,
             this.explosiones.final
         );
+        this.bismarck.grupoColision = this.juego.physics.p2.createCollisionGroup();
     }
 
     crearHood() {
@@ -271,6 +282,7 @@ export default class Partida {
             100,
             this.explosiones.final
         );
+        this.hood.grupoColision = this.juego.physics.p2.createCollisionGroup();
     }
 
     /**
@@ -335,26 +347,42 @@ export default class Partida {
 
     crearArmas() {
         // canion frontal bismarck
-        this.crearCanionProa(this.bismarck, 'balaBismarck');
+        this.crearCanionProa(
+            this.bismarck,
+            this.hood,
+            'balaBismarck',
+            Partida.ESCALADO_BALA_BISMARCK
+        );
     
         // canionProa hood
-        this.crearCanionProa(this.hood, 'balaHood');
+        this.crearCanionProa(
+            this.hood,
+            this.bismarck,
+            'balaHood',
+            Partida.ESCALADO_BALA_HOOD
+        );
     }
 
     /**
      * Crea el canion de proa del barco
      * @param {Barco} barco 
-     * @param {string} bala Nombre de la imagen de la bala
+     * @param {Barco} barcoEnemigo 
+     * @param {string} imagenBala Nombre de la imagen de la bala
+     * @param {number} escaladoBala Escalado de la imagen de la bala
      */
-    crearCanionProa(barco, bala) {
-        let canion = this.juego.add.weapon(1, bala);
-        canion.bulletKillType = Phaser.Weapon.KILL_DISTANCE;
-        canion.bulletKillDistance = this.niebla.radio;
-        canion.bulletAngleOffset = 300;
-        canion.bulletSpeed = 500;
-        canion.trackSprite(barco.sprite, 0, 0, true);
+    crearCanionProa(barco, barcoEnemigo, imagenBala, escaladoBala) {
+        let spriteBala = this.juego.add.sprite(0, 0, imagenBala);
+        spriteBala.scale.setTo(escaladoBala, escaladoBala);
+        spriteBala.anchor.setTo(0.5, 0.5);
 
-        this.juego.physics.arcade.enable(canion);
+        this.juego.physics.p2.enable(spriteBala, true);
+
+        let bala = new Bala(spriteBala);
+        bala.grupoColision = this.juego.physics.p2.createCollisionGroup();
+        bala.setearColision(barcoEnemigo);
+        barcoEnemigo.sprite.body.collides(bala.grupoColision, function(){console.log('colisiona bala');}, this);
+
+        let canion = new Canion(barco, 0, bala);
         barco.canionProa = canion;
     }
 
@@ -382,7 +410,7 @@ export default class Partida {
         if (estadoPartida.jugador == this.barcoEnemigo.nombre) {
             this.procesarEstadoEnemigo(estadoPartida);
         } else if (estadoPartida.fuegoProa) {
-            this.barcoJugador.canionProa.fire();
+            this.barcoJugador.canionProa.disparar();
         }
     }
 
@@ -412,15 +440,17 @@ export default class Partida {
         );
     }
     
-    impactoBala(barco, bala) {
-        bala.kill();
+    impactoBala(bala, barco) {
+        console.log('impactobala');
+        // TDO: ADAPTAR
+        /*bala.kill();
             
         let explosionImpacto = this.explosiones.impacto.getFirstExists(false);
         explosionImpacto.reset(bala.body.x, bala.body.y);
         explosionImpacto.play('explosionImpacto', 30, false, true);
         if (barco.nombre == this.barcoEnemigo.nombre) {
             this.barcoEnemigo.impactado = true;
-        }
+        }*/
     }
 
     actualizarVidas() {
@@ -453,7 +483,7 @@ export default class Partida {
     updateMovimientoJugador() {
         this.updateVelocidadJugador();
         this.updateRotacionJugador();
-        this.barcoJugador.sprite.body.moveForward(this.barcoJugador.velocidadActual);
+        this.barcoJugador.mover();
     }
 
     updateVelocidadJugador() {
