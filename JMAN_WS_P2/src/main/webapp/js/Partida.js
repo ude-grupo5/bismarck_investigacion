@@ -12,6 +12,7 @@ export default class Partida {
     static get ESCALADO_BALA_HOOD () { return 1; }
     static get DAMPING_BARCO () { return 0.8; }
     static get DAMPING_ANGULAR_BARCO () { return 0.9; }
+    static get VER_CUERPOS () { return false; }
     
     /**
      * Constructor
@@ -298,7 +299,7 @@ export default class Partida {
         sprite.scale.setTo(escalado, escalado);
         sprite.anchor.setTo(0.5, 0.5);
 
-        this.juego.physics.p2.enable(sprite, true);
+        this.juego.physics.p2.enable(sprite, Partida.VER_CUERPOS);
 
         let physicsJSON = this.juego.cache.getJSON('sprite_physics');
         let poligono = this.poligonoEscalado(physicsJSON[nombrePoligono], escalado);
@@ -378,7 +379,7 @@ export default class Partida {
         spriteBala.scale.setTo(escaladoBala, escaladoBala);
         spriteBala.anchor.setTo(0.5, 0.5);
 
-        this.juego.physics.p2.enable(spriteBala, true);
+        this.juego.physics.p2.enable(spriteBala, Partida.VER_CUERPOS);
 
         let bala = new Bala(spriteBala);
         bala.grupoColision = this.juego.physics.p2.createCollisionGroup();

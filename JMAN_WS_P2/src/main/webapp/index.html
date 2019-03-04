@@ -1,14 +1,87 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <ul>
-        <li>Jugar con <a href="juego.html?barco=Bismarck">Bismark</a>.
-        <li>Jugar con <a href="juego.html?barco=Hood">Hood</a>.
-    </ul>
-</head>
-<body>
+<html>
 
+<head>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+  <video poster="media/fondoIndex.jpg" playsinline autoplay muted loop>
+    <source src="media/videoplayback.mp4" type="video/mp4">
+  </video>
+<!--  <audio autoplay>
+    <source src="media/Black Flag In-Game Soundtrack.mp3" type="audio/mpeg">
+  </audio>
+-->  
+  <div class="container-fluid">
+    <div class="row">
+      <p></p>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <img src="media/logo.png" height="400" width="500">
+      </div>
+      <div class="col-md-4 offset-md-3">
+        <div class="card mb-3" style="opacity: .8;">
+          <h3 class="card-header">Nueva Partida</h3>
+          <div class="card-body">
+            <h5 class="card-title">Registra tu nombre y selecciona tu barco</h5>
+            <fieldset>
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Nombre del Capit&aacute;n" id="inputNombreNuevaPartida">
+              </div>
+              <div class="form-group">
+                <select class="custom-select" id="selectBarco">
+                  <option value="" selected="">Seleccionar tu barco</option>
+                  <option value="Bismarck">Bismarck</option>
+                  <option value="Hood">Hood</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary btn-lg btn-block" onclick="nuevaPartida()">Buscar oponente</button>
+              <button type="button" class="btn btn-primary btn-lg btn-block" >Modo Pr&aacute;ctica</button>
+              <div class="alert alert-success alert-dismissible">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>Success!</strong> Indicates a successful or positive action.
+              </div>
+            </fieldset>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a href="ayuda.html" class="card-link">Ayuda</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+      </div>
+      <div class="col-md-4 offset-md-3">
+        <div class="card mb-3" style="opacity: .8;">
+          <h3 class="card-header">Recuperar Partida</h3>
+          <div class="card-body">
+            <h5 class="card-title">Ingresa tu nombre y selecciona tu oponente</h5>
+            <fieldset>
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Nombre del Capit&aacute;n" id="nombreJugador">
+              </div>
+              <div class="form-group">
+                <select class="custom-select">
+                  <option selected="">Selecciona tu partida pendiente</option>
+                  <option value="1">marcelito221 (Bismarck)</option>
+                  <option value="2">soytupadre (Hood)</option>
+                  <option value="3">estelita7 (Hood)</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary btn-lg btn-block">Continuar</button>
+            </fieldset>
+          </div>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><a href="#" class="card-link">Ver Ranking</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="js/index.js"></script>
 </body>
+
 </html>
