@@ -8,6 +8,7 @@ export default class Barco {
     constructor(nombre, sprite, vida, velocidadMaxima, explosion) {
         this.nombre = nombre;
         this.sprite = sprite;
+        this.sprite.barco = this;
         this.vida = vida;
         this.velocidadMaxima = velocidadMaxima;
         this.explosion = explosion;
@@ -97,8 +98,8 @@ export default class Barco {
         }
     }
 
-    setearColision(barco) {
-        this.sprite.body.collides(barco.grupoColision, function(){console.log('colisiona ' + this.nombre);}, this);
+    setearColision(grupoColision) {
+        this.sprite.body.collides(grupoColision);
     }
 
     disminuirVelocidad() {

@@ -36,6 +36,10 @@ export default class Bala {
     // ########################################################################
 
     get grupoColision () { return this._grupoColision; }
+
+    get x () { return this._sprite.body.x; }
+
+    get y () { return this._sprite.body.y; }
     
     // ########################################################################
     //      METODOS PUBLICOS
@@ -52,11 +56,12 @@ export default class Bala {
 
     revivir() {
         this._sprite.revive();
+        this._sprite.body.setZeroRotation();
         this._viva = true;
     }
 
-    setearColision(barco) {
-        this._sprite.body.collides(barco.grupoColision, function(){console.log('colisiona ' + this.nombre);}, this);
+    setearColision(grupoColision, callback, contexto) {
+        this._sprite.body.collides(grupoColision, callback, contexto);
     }
 
     // ########################################################################

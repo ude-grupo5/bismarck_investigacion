@@ -11,7 +11,7 @@ export default class Partida {
     static get ESCALADO_HOOD () { return 0.15; }
     static get ESCALADO_BALA_HOOD () { return 1; }
     static get DAMPING_BARCO () { return 0.8; }
-    static get DAMPING_ANGULAR_BARCO () { return 0.6; }
+    static get DAMPING_ANGULAR_BARCO () { return 0.9; }
     
     /**
      * Constructor
@@ -65,6 +65,7 @@ export default class Partida {
         this.crearMarcador();
         this.crearExplosiones();
         this.crearBarcos();
+        this.crearColisionEntreBarcos();
         this.asignarBarcos();
         this.crearArmas();
         this.crearControles();
@@ -240,9 +241,6 @@ export default class Partida {
     crearBarcos() {
         this.crearBismarck();
         this.crearHood();
-
-        this.bismarck.setearColision(this.hood);
-        //this.hood.setearColision(this.bismarck);
     }
 
     crearBismarck() {
@@ -326,6 +324,11 @@ export default class Partida {
         return poligonoEscalado;
     }
 
+    crearColisionEntreBarcos() {
+        this.bismarck.setearColision(this.hood.grupoColision);
+        this.hood.setearColision(this.bismarck.grupoColision);
+    }
+
     asignarBarcos() {
         let barcoElegido = this.obtenerBarcoURL();
         if (barcoElegido == "Bismarck") {
@@ -379,8 +382,8 @@ export default class Partida {
 
         let bala = new Bala(spriteBala);
         bala.grupoColision = this.juego.physics.p2.createCollisionGroup();
-        bala.setearColision(barcoEnemigo);
-        barcoEnemigo.sprite.body.collides(bala.grupoColision, function(){console.log('colisiona bala');}, this);
+        bala.setearColision(barcoEnemigo.grupoColision, this.impactoBala, this);
+        barcoEnemigo.setearColision(bala.grupoColision);
 
         let canion = new Canion(barco, 0, bala);
         barco.canionProa = canion;
@@ -440,17 +443,20 @@ export default class Partida {
         );
     }
     
-    impactoBala(bala, barco) {
-        console.log('impactobala');
-        // TDO: ADAPTAR
-        /*bala.kill();
-            
+    impactoBala(bodyBala, bodyBarco) {
+        let bala = bodyBala.sprite.bala;
+        let barco = bodyBarco.sprite.barco;
+
+        bala._matar();
+        bodyBarco.setZeroRotation();
+
         let explosionImpacto = this.explosiones.impacto.getFirstExists(false);
-        explosionImpacto.reset(bala.body.x, bala.body.y);
+        explosionImpacto.reset(bala.x, bala.y);
         explosionImpacto.play('explosionImpacto', 30, false, true);
         if (barco.nombre == this.barcoEnemigo.nombre) {
             this.barcoEnemigo.impactado = true;
-        }*/
+        }
+        // TODO: Hacer que el danio sea el que diga la bala
     }
 
     actualizarVidas() {
