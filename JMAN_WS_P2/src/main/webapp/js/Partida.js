@@ -31,7 +31,7 @@ export default class Partida {
         this.hood = null;
 
         // puntero
-        this.puntero = null;
+        this.punteroEnemigo = null;
 
         // niebla
         this.niebla = null;
@@ -72,7 +72,7 @@ export default class Partida {
         this.crearBarcos();
         this.crearColisionEntreBarcos();
         this.asignarBarcos();
-        this.crearPuntero();
+        this.crearPunteroEnemigo();
         this.crearArmas();
         this.crearControles();
         this.crearCamaras();
@@ -81,7 +81,7 @@ export default class Partida {
     update() {
         this.procesarEstadosRecibidos();
         this.updateMovimientoJugador();
-        this.updatePuntero();
+        this.updatePunteroEnemigo();
         this.updateDisparos();
         this.updateNiebla();
         this.enviarEstadoPartida();
@@ -356,10 +356,10 @@ export default class Partida {
         return barco;
     }
 
-    crearPuntero() {
-        this.puntero = this.juego.add.sprite(0, 0, 'punteroRojo');
-        this.puntero.scale.setTo(0.8, 0.8);
-        this.puntero.anchor.setTo(0.5, 0.5);
+    crearPunteroEnemigo() {
+        this.punteroEnemigo = this.juego.add.sprite(0, 0, 'punteroRojo');
+        this.punteroEnemigo.scale.setTo(0.8, 0.8);
+        this.punteroEnemigo.anchor.setTo(0.5, 0.5);
     }
 
     crearArmas() {
@@ -525,30 +525,30 @@ export default class Partida {
         }
     }
 
-    updatePuntero() {
+    updatePunteroEnemigo() {
         if (this.barcoEnemigo.oculto) {
-            this.reposicionarPuntero();
+            this.reposicionarPuntero(this.barcoEnemigo);
             this.mostrarPuntero();
         } else {
             this.ocultarPuntero();
         }
     }
 
-    reposicionarPuntero() {
+    reposicionarPuntero(puntoObjetivo) {
         let distancia = this.niebla.radio - this.niebla.franja;
-        let angulo = Geometria.anguloEntrePuntos(this.barcoJugador, this.barcoEnemigo);
+        let angulo = Geometria.anguloEntrePuntos(this.barcoJugador, puntoObjetivo);
         let punto = Geometria.obtenerPunto(this.barcoJugador, distancia, angulo);
-        this.puntero.position.x = punto.x;
-        this.puntero.position.y = punto.y;
-        this.puntero.angle = angulo;
+        this.punteroEnemigo.position.x = punto.x;
+        this.punteroEnemigo.position.y = punto.y;
+        this.punteroEnemigo.angle = angulo;
     }
 
     mostrarPuntero() {
-        this.puntero.visible = true;
+        this.punteroEnemigo.visible = true;
     }
 
     ocultarPuntero() {
-        this.puntero.visible = false;
+        this.punteroEnemigo.visible = false;
     }
 
     updateDisparos() {

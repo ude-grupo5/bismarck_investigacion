@@ -12,7 +12,7 @@ export default class Geometria {
             anguloGrados = Geometria.radianesAGrados(anguloRadianes);
         }
         
-        if (adyacente < 0 ||( adyacente = 0 && opuesto < 0 ) )  {
+        if (adyacente < 0 || ( adyacente == 0 && opuesto < 0 ) )  {
             compensacion = 180;
         }
 
@@ -77,5 +77,6 @@ export default class Geometria {
             angulo = Geometria.anguloEntrePuntos(puntoA, puntoB);
             console.log('x: ' + xB + ' y: ' + yB + ' angulo: ' + angulo);
         }
-    }*/
+    }
+    */
 }
