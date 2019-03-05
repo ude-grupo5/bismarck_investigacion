@@ -104,7 +104,6 @@ export default class Partida {
     }
 
     cargarImagenes() {
-        this.juego.load.image('escenario','sprites/escenario.png');
         this.juego.load.image('tiles', 'sprites/Tile/forest_tiles.png');
         this.juego.load.image('balaBismarck','sprites/balaB.png');
         this.juego.load.image('balaHood','sprites/balaH.png');
@@ -153,7 +152,6 @@ export default class Partida {
         this.juego.physics.p2.updateBoundsCollisionGroup();
 
         this.juego.world.setBounds(0, 0, 1920, 1200);
-        this.juego.add.sprite(0, 0, 'escenario');
     }
 
     crearFondo() {
