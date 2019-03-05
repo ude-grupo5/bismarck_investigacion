@@ -47,10 +47,9 @@ export default class Bala {
 
     danio() {
         let danio = this._danioMaximo;
-        if (this._distanciaRecorrida > this._alcance / 2) {
+        if (this._distanciaRecorrida() > this._alcance / 2) {
             danio = this._danioMaximo / 2;
         }
-
         return danio;
     }
 

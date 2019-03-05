@@ -14,7 +14,7 @@ export default class Barco {
         this.explosion = explosion;
 
         this.velocidadActual = 0;
-        this.impactado = false;
+        this._impactado = false;
         this.hundido = false;
 
         this.sprite.nombre = this.nombre;
@@ -25,8 +25,6 @@ export default class Barco {
     // ########################################################################
 
     set canionProa (canion) {  this._canionProa = canion; }
-
-    set impactado (impactado) { this._impactado = impactado; }
 
     set grupoColision (grupoColision) {
         this.sprite.body.setCollisionGroup(grupoColision);
@@ -41,9 +39,13 @@ export default class Barco {
 
     get canionProa () { return this._canionProa; }
 
+    get danioImpacto () { return this._danioImpacto; }
+
     get impactado () { return this._impactado; }
 
     get grupoColision () { return this._grupoColision; }
+
+    get oculto () { return !this.sprite.visible; }
 
     get posicion () { return this.sprite.position; }
 
@@ -56,8 +58,6 @@ export default class Barco {
     get velocidadX () { return this.sprite.body.velocity.x; }
 
     get velocidadY () { return this.sprite.body.velocity.y; }
-
-    get oculto () { return !this.sprite.visible; }
 
     get x () { return this.sprite.body.x; }
 
@@ -79,9 +79,9 @@ export default class Barco {
     }
     
     actualizarVida() {
-        if (this.impactado) {
-            this.vida -= 25;
-            this.impactado = false;
+        if (this._impactado) {
+            this.vida -= this._danioImpacto;
+            this._impactado = false;
         }
         if (this.vida <= 0 && !this.hundido) {
             this._explotar();
@@ -122,6 +122,11 @@ export default class Barco {
 
     ocultar() {
         this.sprite.visible = false;
+    }
+
+    registrarImpacto(danio) {
+        this._impactado = true;
+        this._danioImpacto = danio;
     }
 
     virarABabor() {

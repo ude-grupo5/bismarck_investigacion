@@ -42,9 +42,9 @@ export default class Canion {
     }
 
     _dispararBala() {
-        this._bala.revivir();
         this._bala.posicionInicial = this._barco.posicion;
         this._bala.direccion = this._barco.angulo + this._compensacionAngulo;
+        this._bala.revivir();
     }
 
     _iniciarEnfriamiento() {

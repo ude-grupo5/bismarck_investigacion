@@ -13,7 +13,11 @@ export default class Partida {
     static get ESCALADO_BALA_HOOD () { return 1; }
     static get DAMPING_BARCO () { return 0.8; }
     static get DAMPING_ANGULAR_BARCO () { return 0.9; }
+    static get VELOCIDAD_BISMARCK () { return 100; }
+    static get VELOCIDAD_HOOD () { return 100; }
     static get VER_CUERPOS () { return false; }
+    static get VIDA_BISMARCK () { return 200; }
+    static get VIDA_HOOD () { return 100; }
     
     /**
      * Constructor
@@ -113,8 +117,8 @@ export default class Partida {
         this.juego.load.spritesheet('explosionFinal', 'sprites/explosion.png', 128, 128);
         this.juego.load.spritesheet('explosionImpacto', 'sprites/explosion1.png', 64, 64);
         this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
-        this.juego.load.spritesheet('vidaHood', 'sprites/Vida_Hood.png',302, 60);
-        this.juego.load.spritesheet('vidaBismarck', 'sprites/Vida_Bismarck.png',302, 60);
+        this.juego.load.spritesheet('vidaHood', 'sprites/vida_hood.png',298, 60);
+        this.juego.load.spritesheet('vidaBismarck', 'sprites/vida_bismarck.png',290, 61);
     }
 
     cargarSpritePhysics() {
@@ -197,6 +201,10 @@ export default class Partida {
     
         let vidaBismarck = this.juego.add.sprite(10, 1, 'vidaBismarck');
         
+        vidaBismarck.animations.add (200,[8]);
+        vidaBismarck.animations.add (175 ,[7]);
+        vidaBismarck.animations.add (150,[6]);
+        vidaBismarck.animations.add (125,[5]);
         vidaBismarck.animations.add (100,[4]);
         vidaBismarck.animations.add (75 ,[3]);
         vidaBismarck.animations.add (50,[2]);
@@ -264,8 +272,8 @@ export default class Partida {
         this.bismarck = new Barco(
             'Bismarck',
             spriteBismarck,
-            100,
-            100,
+            Partida.VIDA_BISMARCK,
+            Partida.VELOCIDAD_BISMARCK,
             this.explosiones.final
         );
         this.bismarck.grupoColision = this.juego.physics.p2.createCollisionGroup();
@@ -284,8 +292,8 @@ export default class Partida {
         this.hood = new Barco(
             'Hood',
             spriteHood,
-            100,
-            100,
+            Partida.VIDA_HOOD,
+            Partida.VELOCIDAD_HOOD,
             this.explosiones.final
         );
         this.hood.grupoColision = this.juego.physics.p2.createCollisionGroup();
@@ -393,6 +401,7 @@ export default class Partida {
         spriteBala.anchor.setTo(0.5, 0.5);
 
         this.juego.physics.p2.enable(spriteBala, Partida.VER_CUERPOS);
+        spriteBala.body.setCircle(6);
 
         let bala = new Bala(spriteBala);
         bala.grupoColision = this.juego.physics.p2.createCollisionGroup();
@@ -434,17 +443,19 @@ export default class Partida {
     procesarEstadoEnemigo(estadoPartida) {
         this.barcoEnemigo.aplicarEstadoPartida(estadoPartida);
         if (estadoPartida.enemigoImpactado) {
-            this.barcoJugador.impactado = true;
+            this.barcoJugador.registrarImpacto(estadoPartida.danioImpacto);
         }
         this.procesarVisibilidadEnemigo();
     }
 
     procesarVisibilidadEnemigo() {
-        let separacion = this.separacion(this.barcoJugador, this.barcoEnemigo);
-        if (separacion < this.niebla.visibilidad) {
-            this.barcoEnemigo.mostrar();
-        } else {
-            this.barcoEnemigo.ocultar();
+        if (!this.barcoEnemigo.hundido) {
+            let separacion = this.separacion(this.barcoJugador, this.barcoEnemigo);
+            if (separacion < this.niebla.visibilidad) {
+                this.barcoEnemigo.mostrar();
+            } else {
+                this.barcoEnemigo.ocultar();
+            }
         }
     }
 
@@ -460,7 +471,6 @@ export default class Partida {
     impactoBala(bodyBala, bodyBarco) {
         let bala = bodyBala.sprite.bala;
         let barco = bodyBarco.sprite.barco;
-
         bala._matar();
         bodyBarco.setZeroRotation();
 
@@ -468,9 +478,8 @@ export default class Partida {
         explosionImpacto.reset(bala.x, bala.y);
         explosionImpacto.play('explosionImpacto', 30, false, true);
         if (barco.nombre == this.barcoEnemigo.nombre) {
-            this.barcoEnemigo.impactado = true;
+            this.barcoEnemigo.registrarImpacto(bala.danio());
         }
-        // TODO: Hacer que el danio sea el que diga la bala
     }
 
     actualizarVidas() {
@@ -526,7 +535,7 @@ export default class Partida {
     }
 
     updatePunteroEnemigo() {
-        if (this.barcoEnemigo.oculto) {
+        if (this.barcoEnemigo.oculto && !this.barcoEnemigo.hundido) {
             this.reposicionarPuntero(this.barcoEnemigo);
             this.mostrarPuntero();
         } else {
