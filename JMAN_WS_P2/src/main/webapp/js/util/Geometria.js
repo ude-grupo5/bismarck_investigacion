@@ -22,8 +22,25 @@ export default class Geometria {
 
     }
 
-    static obtenerPunto(puntoPartida, distancia, angulo) {
-        // TODO: OBTENER PUNTO
+    static obtenerPunto(puntoPartida, distancia, anguloGrados) {
+        let anguloRadianes = Geometria.gradosARadianes(anguloGrados);
+        let adyacente = Math.cos(anguloRadianes) * distancia;
+        let opuesto = Math.sin(anguloRadianes) * distancia;
+
+        let punto = {
+            x: puntoPartida.x + opuesto,
+            y: puntoPartida.y - adyacente
+        };
+
+        return punto;
+    }
+
+    static radianesAGrados(radianes) {
+        return radianes * (180 / Math.PI);
+    }
+
+    static gradosARadianes(grados) {
+        return grados / (180 / Math.PI);
     }
 
     /*
@@ -61,8 +78,4 @@ export default class Geometria {
             console.log('x: ' + xB + ' y: ' + yB + ' angulo: ' + angulo);
         }
     }*/
-
-    static radianesAGrados(radianes) {
-        return radianes * (180 / Math.PI);
-    }
 }

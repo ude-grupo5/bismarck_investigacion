@@ -57,6 +57,8 @@ export default class Barco {
 
     get velocidadY () { return this.sprite.body.velocity.y; }
 
+    get oculto () { return !this.sprite.visible; }
+
     get x () { return this.sprite.body.x; }
 
     get y () { return this.sprite.body.y; }

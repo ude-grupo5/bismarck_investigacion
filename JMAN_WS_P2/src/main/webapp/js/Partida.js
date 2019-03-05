@@ -3,6 +3,7 @@ import EstadoPartida from './EstadoPartida.js';
 import Barco from './Barco.js';
 import Bala from './Bala.js';
 import Canion from './Canion.js';
+import Geometria from './util/Geometria.js';
 
 export default class Partida {
 
@@ -28,6 +29,9 @@ export default class Partida {
         this.barcoEnemigo = null;
         this.bismarck = null;
         this.hood = null;
+
+        // puntero
+        this.puntero = null;
 
         // niebla
         this.niebla = null;
@@ -68,6 +72,7 @@ export default class Partida {
         this.crearBarcos();
         this.crearColisionEntreBarcos();
         this.asignarBarcos();
+        this.crearPuntero();
         this.crearArmas();
         this.crearControles();
         this.crearCamaras();
@@ -76,6 +81,7 @@ export default class Partida {
     update() {
         this.procesarEstadosRecibidos();
         this.updateMovimientoJugador();
+        this.updatePuntero();
         this.updateDisparos();
         this.updateNiebla();
         this.enviarEstadoPartida();
@@ -100,6 +106,7 @@ export default class Partida {
         this.juego.load.image('balaHood','sprites/balaH.png');
         this.juego.load.image('bismarck','sprites/Modelo_bismarck.png');
         this.juego.load.image('hood','sprites/Modelo_hood.png');
+        this.juego.load.image('punteroRojo','sprites/puntero_rojo.png');
     }
 
     cargarSpritesheets() {
@@ -349,6 +356,12 @@ export default class Partida {
         return barco;
     }
 
+    crearPuntero() {
+        this.puntero = this.juego.add.sprite(0, 0, 'punteroRojo');
+        this.puntero.scale.setTo(0.8, 0.8);
+        this.puntero.anchor.setTo(0.5, 0.5);
+    }
+
     crearArmas() {
         // canion frontal bismarck
         this.crearCanionProa(
@@ -510,6 +523,32 @@ export default class Partida {
         if (this.controles.derecha) {
             this.barcoJugador.virarAEstribor();
         }
+    }
+
+    updatePuntero() {
+        if (this.barcoEnemigo.oculto) {
+            this.reposicionarPuntero();
+            this.mostrarPuntero();
+        } else {
+            this.ocultarPuntero();
+        }
+    }
+
+    reposicionarPuntero() {
+        let distancia = this.niebla.radio - this.niebla.franja;
+        let angulo = Geometria.anguloEntrePuntos(this.barcoJugador, this.barcoEnemigo);
+        let punto = Geometria.obtenerPunto(this.barcoJugador, distancia, angulo);
+        this.puntero.position.x = punto.x;
+        this.puntero.position.y = punto.y;
+        this.puntero.angle = angulo;
+    }
+
+    mostrarPuntero() {
+        this.puntero.visible = true;
+    }
+
+    ocultarPuntero() {
+        this.puntero.visible = false;
     }
 
     updateDisparos() {
