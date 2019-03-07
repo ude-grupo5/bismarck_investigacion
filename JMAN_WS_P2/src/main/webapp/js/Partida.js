@@ -28,6 +28,12 @@ export default class Partida {
         this.juego = juego;
         this.websocket = null;
 
+        // mapa
+        this.mapa = null;
+
+        // grupos de colision
+        this.gruposColision  = null;
+
         // barcos
         this.barcoJugador = null;
         this.barcoEnemigo = null;
@@ -49,7 +55,7 @@ export default class Partida {
         // controles
         this.controles = null;
 
-        // estado enviado por el servidor
+        // estados enviados por el servidor
         this.estadosRecibidos = [];
     }
 
@@ -58,7 +64,7 @@ export default class Partida {
      *************************************************************************/
     
     preload() {
-        this.cargarTilemaps();
+        this.cargarMapa();
         this.cargarImagenes();
         this.cargarSpritesheets();
         this.cargarSpritePhysics();
@@ -69,12 +75,14 @@ export default class Partida {
     create() {
         this.deshabilitarPerdidaFoco();
         this.iniciarFisica();
-        this.crearFondo();
+        this.crearMapa();
+        this.crearGruposDeColision();
+        this.setearColisionesMapa();
         this.crearNiebla();
         this.crearMarcador();
         this.crearExplosiones();
         this.crearBarcos();
-        this.crearColisionEntreBarcos();
+        this.setearColisionBarcos();
         this.asignarBarcos();
         this.crearPunteroEnemigo();
         this.crearArmas();
@@ -91,20 +99,18 @@ export default class Partida {
         this.enviarEstadoPartida();
         this.actualizarVidas();
         this.actualizarMarcador();
-
-        //console.log(this.barcoJugador.posicion + ' x: ' + this.barcoJugador.x + ' y: ' + this.barcoJugador.y);
     }
 
     /*************************************************************************
      * FUCIONES AUXILIARES PRELOAD
      *************************************************************************/
 
-    cargarTilemaps() {
+    cargarMapa() {
         this.juego.load.tilemap('map', 'sprites/Tile/Mapa.csv', null, Phaser.Tilemap.CSV);
+        this.juego.load.image('tiles', 'sprites/Tile/forest_tiles.png');
     }
 
     cargarImagenes() {
-        this.juego.load.image('tiles', 'sprites/Tile/forest_tiles.png');
         this.juego.load.image('balaBismarck','sprites/balaB.png');
         this.juego.load.image('balaHood','sprites/balaH.png');
         this.juego.load.image('bismarck','sprites/Modelo_bismarck.png');
@@ -115,7 +121,7 @@ export default class Partida {
     cargarSpritesheets() {
         this.juego.load.spritesheet('explosionFinal', 'sprites/explosion.png', 128, 128);
         this.juego.load.spritesheet('explosionImpacto', 'sprites/explosion1.png', 64, 64);
-        this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
+        //this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
         this.juego.load.spritesheet('vidaHood', 'sprites/vida_hood.png',298, 60);
         this.juego.load.spritesheet('vidaBismarck', 'sprites/vida_bismarck.png',290, 61);
     }
@@ -150,17 +156,49 @@ export default class Partida {
         this.juego.physics.startSystem(Phaser.Physics.P2JS);
         this.juego.physics.p2.setImpactEvents(true);
         this.juego.physics.p2.updateBoundsCollisionGroup();
-
-        this.juego.world.setBounds(0, 0, 1920, 1200);
     }
 
-    crearFondo() {
+    crearMapa() {
+        this.juego.world.setBounds(0, 0, 1920, 1200);
+
         let mapa = this.juego.add.tilemap('map', 32, 32);
         mapa.addTilesetImage('tiles');
-        mapa.setCollisionBetween(0, 44);
 
         let capa = mapa.createLayer(0);
         capa.resizeWorld();
+
+        mapa.setCollisionBetween(0, 100);
+
+        this.mapa = mapa;
+        // Convierte el tilemap en cuerpos
+        this.juego.physics.p2.convertTilemap(mapa, capa);
+
+        // Definir los cuatro limites del mapa
+        this.juego.physics.p2.setBoundsToWorld(true, true, true, true, true);
+    }
+
+    crearGruposDeColision() {
+        let p2 = this.juego.physics.p2;
+        this.gruposColision = {
+            balasBismarck: p2.createCollisionGroup(),
+            balasHood: p2.createCollisionGroup(),
+            bismarck: p2.createCollisionGroup(),
+            hood: p2.createCollisionGroup(),
+            mapa: p2.createCollisionGroup()
+        }
+    }
+
+    setearColisionesMapa() {
+        let cuerposMapa = this.mapa.layer.bodies;
+        for (let cuerpo of cuerposMapa) {
+            cuerpo.setCollisionGroup(this.gruposColision.mapa);
+            cuerpo.collides([
+                this.gruposColision.balasBismarck,
+                this.gruposColision.balasHood,
+                this.gruposColision.bismarck,
+                this.gruposColision.hood
+            ]);
+        }
     }
 
     crearNiebla() {
@@ -258,7 +296,7 @@ export default class Partida {
     }
 
     crearBismarck() {
-        let spriteBismarck = this.agregarSpriteConFisica(
+        let spriteBismarck = this.crearSpriteBarco(
             2400,
             2700,
             'bismarck',
@@ -274,11 +312,11 @@ export default class Partida {
             Partida.VELOCIDAD_BISMARCK,
             this.explosiones.final
         );
-        this.bismarck.grupoColision = this.juego.physics.p2.createCollisionGroup();
+        this.bismarck.grupoColision = this.gruposColision.bismarck;
     }
 
     crearHood() {
-        let spriteHood = this.agregarSpriteConFisica(
+        let spriteHood = this.crearSpriteBarco(
             2000,
             2700,
             'hood',
@@ -294,7 +332,7 @@ export default class Partida {
             Partida.VELOCIDAD_HOOD,
             this.explosiones.final
         );
-        this.hood.grupoColision = this.juego.physics.p2.createCollisionGroup();
+        this.hood.grupoColision = this.gruposColision.hood;
     }
 
     /**
@@ -307,7 +345,7 @@ export default class Partida {
      * @param {number} damping De 0 a 1. Proporcion de perdida de veloidad lineal por segundo
      * @param {number} dampingAngular De 0 a 1. Proporcion de perdida de veloidad de rotacion por segundo
      */
-    agregarSpriteConFisica(x, y, imagen, nombrePoligono, escalado, damping, dampingAngular) {
+    crearSpriteBarco(x, y, imagen, nombrePoligono, escalado, damping, dampingAngular) {
         let sprite = this.juego.add.sprite(x, y, imagen);
         sprite.scale.setTo(escalado, escalado);
         sprite.anchor.setTo(0.5, 0.5);
@@ -338,9 +376,17 @@ export default class Partida {
         return poligonoEscalado;
     }
 
-    crearColisionEntreBarcos() {
-        this.bismarck.setearColision(this.hood.grupoColision);
-        this.hood.setearColision(this.bismarck.grupoColision);
+    setearColisionBarcos() {
+        this.bismarck.setearColision([
+            this.gruposColision.balasHood,
+            this.gruposColision.hood,
+            this.gruposColision.mapa
+        ]);
+        this.hood.setearColision([
+            this.gruposColision.balasBismarck,
+            this.gruposColision.bismarck,
+            this.gruposColision.mapa
+        ]);
     }
 
     asignarBarcos() {
@@ -389,11 +435,11 @@ export default class Partida {
     /**
      * Crea el canion de proa del barco
      * @param {Barco} barco 
-     * @param {Barco} barcoEnemigo 
+     * @param {Barco} barcoOpuesto 
      * @param {string} imagenBala Nombre de la imagen de la bala
      * @param {number} escaladoBala Escalado de la imagen de la bala
      */
-    crearCanionProa(barco, barcoEnemigo, imagenBala, escaladoBala) {
+    crearCanionProa(barco, barcoOpuesto, imagenBala, escaladoBala) {
         let spriteBala = this.juego.add.sprite(0, 0, imagenBala);
         spriteBala.scale.setTo(escaladoBala, escaladoBala);
         spriteBala.anchor.setTo(0.5, 0.5);
@@ -403,8 +449,8 @@ export default class Partida {
 
         let bala = new Bala(spriteBala);
         bala.grupoColision = this.juego.physics.p2.createCollisionGroup();
-        bala.setearColision(barcoEnemigo.grupoColision, this.impactoBala, this);
-        barcoEnemigo.setearColision(bala.grupoColision);
+        bala.setearColision(barcoOpuesto.grupoColision, this.impactoBala, this);
+        bala.setearColision(this.gruposColision.mapa);
 
         let canion = new Canion(barco, 0, bala);
         barco.canionProa = canion;

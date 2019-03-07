@@ -80,7 +80,7 @@ export default class Barco {
     
     actualizarVida() {
         if (this._impactado) {
-            this.vida -= this._danioImpacto;
+            this.vida -= Math.min(this._danioImpacto, this.vida);
             this._impactado = false;
         }
         if (this.vida <= 0 && !this.hundido) {
@@ -98,10 +98,6 @@ export default class Barco {
         if (estadoPartida.fuegoProa) {
             this.canionProa.disparar();
         }
-    }
-
-    setearColision(grupoColision) {
-        this.sprite.body.collides(grupoColision);
     }
 
     disminuirVelocidad() {
@@ -127,6 +123,10 @@ export default class Barco {
     registrarImpacto(danio) {
         this._impactado = true;
         this._danioImpacto = danio;
+    }
+
+    setearColision(grupoColision) {
+        this.sprite.body.collides(grupoColision);
     }
 
     virarABabor() {
