@@ -167,7 +167,8 @@ export default class Partida {
         let capa = mapa.createLayer(0);
         capa.resizeWorld();
 
-        mapa.setCollisionBetween(0, 100);
+        mapa.setCollisionBetween(0, 132);
+        mapa.setCollisionBetween(134, 200);
 
         this.mapa = mapa;
         // Convierte el tilemap en cuerpos
@@ -420,7 +421,8 @@ export default class Partida {
             this.bismarck,
             this.hood,
             'balaBismarck',
-            Partida.ESCALADO_BALA_BISMARCK
+            Partida.ESCALADO_BALA_BISMARCK,
+            this.gruposColision.balasBismarck
         );
     
         // canionProa hood
@@ -428,7 +430,8 @@ export default class Partida {
             this.hood,
             this.bismarck,
             'balaHood',
-            Partida.ESCALADO_BALA_HOOD
+            Partida.ESCALADO_BALA_HOOD,
+            this.gruposColision.balasHood
         );
     }
 
@@ -438,8 +441,9 @@ export default class Partida {
      * @param {Barco} barcoOpuesto 
      * @param {string} imagenBala Nombre de la imagen de la bala
      * @param {number} escaladoBala Escalado de la imagen de la bala
+     * @param {Phaser.Physics.CollisionGroup} grupoColisonBalas Grupo de colision de las balas
      */
-    crearCanionProa(barco, barcoOpuesto, imagenBala, escaladoBala) {
+    crearCanionProa(barco, barcoOpuesto, imagenBala, escaladoBala, grupoColisionBalas) {
         let spriteBala = this.juego.add.sprite(0, 0, imagenBala);
         spriteBala.scale.setTo(escaladoBala, escaladoBala);
         spriteBala.anchor.setTo(0.5, 0.5);
@@ -448,7 +452,7 @@ export default class Partida {
         spriteBala.body.setCircle(6);
 
         let bala = new Bala(spriteBala);
-        bala.grupoColision = this.juego.physics.p2.createCollisionGroup();
+        bala.grupoColision = grupoColisionBalas;
         bala.setearColision(barcoOpuesto.grupoColision, this.impactoBala, this);
         bala.setearColision(this.gruposColision.mapa);
 
