@@ -1,0 +1,13 @@
+div#juego
+{
+  float: left;
+  width: 800px;
+  height: 600px;
+}
+
+div#lateral
+{
+  float: left;
+  width: 400px;
+  height: 400px;
+}
