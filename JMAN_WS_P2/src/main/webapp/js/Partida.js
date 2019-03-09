@@ -4,6 +4,7 @@ import Barco from './Barco.js';
 import Bala from './Bala.js';
 import Canion from './Canion.js';
 import Geometria from './util/Geometria.js';
+import MenuPausa from './MenuPausa.js';
 
 export default class Partida {
 
@@ -26,6 +27,8 @@ export default class Partida {
     constructor(juego) {    
 
         this.juego = juego;
+
+        // websockets
         this.websocket = null;
 
         // mapa
@@ -52,6 +55,9 @@ export default class Partida {
         // animaciones
         this.explosiones = null;
 
+        // menu pausa
+        this.menuPausa = null;
+
         // controles
         this.controles = null;
 
@@ -75,24 +81,34 @@ export default class Partida {
     create() {
         this.deshabilitarPerdidaFoco();
         this.iniciarFisica();
+
         this.crearMapa();
         this.crearGruposDeColision();
         this.setearColisionesMapa();
-        this.crearNiebla();
-        this.crearMarcador();
+
         this.crearExplosiones();
+        
         this.crearBarcos();
         this.setearColisionBarcos();
         this.asignarBarcos();
-        this.crearPunteroEnemigo();
+        
         this.crearArmas();
+
+        this.crearNiebla();
+
+        this.crearPunteroEnemigo();
+
+        this.crearMarcador();
+
+        this.crearMenuPausa();
+
         this.crearControles();
         this.crearCamaras();
     }
 
     update() {
         this.procesarEstadosRecibidos();
-        this.updateMovimientoJugador();
+        this.updateAccionesJugador();
         this.updatePunteroEnemigo();
         this.updateDisparos();
         this.updateNiebla();
@@ -123,7 +139,7 @@ export default class Partida {
         this.juego.load.spritesheet('explosionImpacto', 'sprites/explosion1.png', 64, 64);
         //this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
         this.juego.load.spritesheet('vidaHood', 'sprites/vida_hood.png',298, 60);
-        this.juego.load.spritesheet('vidaBismarck', 'sprites/vida_bismarck.png',290, 61);
+        this.juego.load.spritesheet('vidaBismarck', 'sprites/vida_bismarck.png', 290, 61);
     }
 
     cargarSpritePhysics() {
@@ -267,6 +283,10 @@ export default class Partida {
 
         this.marcador.vidaHood = vidaHood;
         this.marcador.hoodHundido = false;
+    }
+
+    crearMenuPausa() {
+        this.menuPausa = new MenuPausa(this.juego);
     }
 
     crearExplosiones() {
@@ -468,10 +488,10 @@ export default class Partida {
         this.juego.camera.follow(this.barcoJugador.sprite, Phaser.Camera.FOLLOW_LOCKON);
     }
 
-    /*************************************************************************
-     * FUCIONES AUXILIARES UPDATE
-     *************************************************************************/
-    
+    // ########################################################################
+    //      FUCIONES AUXILIARES UPDATE
+    // ########################################################################
+
     procesarEstadosRecibidos() {
         let estadoPartida = this.estadosRecibidos.shift();
         while (estadoPartida) {
@@ -557,10 +577,18 @@ export default class Partida {
         estadoPartida.visible = true;
     }
 
-    updateMovimientoJugador() {
+    updateAccionesJugador() {
+        this.updatePausaJugador();
         this.updateVelocidadJugador();
         this.updateRotacionJugador();
         this.barcoJugador.mover();
+    }
+
+    updatePausaJugador() {
+        if (this.controles.pausa) {
+            this.juego.paused = true;
+            this.menuPausa.mostrar();
+        }
     }
 
     updateVelocidadJugador() {

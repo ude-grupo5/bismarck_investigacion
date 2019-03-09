@@ -1,15 +1,29 @@
 <html>
-<head>
-<meta charset="utf-8" />
-<title>La caza del Bismarck</title>
-	<script type="text/javascript" src="js/lib/phaser.min.js">
-	
-	</script>
-</head>
-<body>
-    <main id="juego">
-            <script src="js/Main.js" type="module"></script>
-    </main>
-
-</body>
+    <head>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/juego.css">
+        <meta charset="utf-8" />
+        <title>La caza del Bismarck</title>
+        <script type="text/javascript" src="js/lib/phaser.min.js"></script>
+    </head>
+    <body>
+        <div id="contenedor_juego" class="center-div">
+            <main id="juego">
+                <script src="js/Main.js" type="module"></script>
+            </main>
+        </div>
+        <div id="fondo_menu_pausa">
+            <div id="menu_pausa_main_div" class="center-div">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <fieldset>
+                            <button id="boton_guardar" type="button" class="btn btn-primary btn-lg btn-block">Guardar</button>
+                            <button id="boton_seguir" type="button" class="btn btn-primary btn-lg btn-block">Seguir</button>
+                            <button id="boton_salir" type="button" class="btn btn-primary btn-lg btn-block">Salir</button>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
 </html>
