@@ -5,7 +5,7 @@ export default class Canion {
     static get VELOCIDAD_BALA () { return 500; }
     static get DANIO_MAXIMO_BALA () { return 50; }
 
-    constructor(barco, compensacionAngulo, bala) {
+    constructor(barco, compensacionAngulo, bala, sonidoDisparo) {
         this._barco = barco;
         this._compensacionAngulo = compensacionAngulo;
 
@@ -14,6 +14,8 @@ export default class Canion {
         this._bala.velocidad = Canion.VELOCIDAD_BALA
         this._bala.danioMaximo = Canion.DANIO_MAXIMO_BALA;
         
+        this._sonidoDisparo = sonidoDisparo;
+
         this._tiempoUltimoDisparo = new Date(Date.now() - Canion.ENFRIAMIENTO_MILISEGUNDOS);
     }
 
@@ -23,6 +25,7 @@ export default class Canion {
 
     disparar() {
         if (this._canionListo()) {
+            this._sonidoDisparo.play();
             this._dispararBala();
             this._iniciarEnfriamiento();
         }

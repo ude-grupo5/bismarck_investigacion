@@ -5,13 +5,14 @@ export default class Barco {
     static get BABOR () { return -1; }
     static get ESTRIBOR () { return 1; }
 
-    constructor(nombre, sprite, vida, velocidadMaxima, explosion) {
+    constructor(nombre, sprite, vida, velocidadMaxima, spriteExplosion, sonidoExplosion) {
         this.nombre = nombre;
         this.sprite = sprite;
         this.sprite.barco = this;
         this.vida = vida;
         this.velocidadMaxima = velocidadMaxima;
-        this.explosion = explosion;
+        this._spriteExplosion = spriteExplosion;
+        this._sonidoExplosion = sonidoExplosion;
 
         this.velocidadActual = 0;
         this._impactado = false;
@@ -142,9 +143,9 @@ export default class Barco {
     // ########################################################################
 
     _explotar() {
-        let explosion = this.explosion.getFirstExists(false);
-        explosion.reset(this.sprite.x, this.sprite.y);
-        explosion.play(this.explosion.nombre, 30, false, true);
+        this._spriteExplosion.reset(this.x, this.y);
+        this._spriteExplosion.play('explosionFinal', 30, false, true);
+        this._sonidoExplosion.play();
     }
 
     _hundir() {

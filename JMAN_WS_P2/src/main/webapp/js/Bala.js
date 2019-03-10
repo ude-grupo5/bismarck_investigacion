@@ -1,9 +1,13 @@
 export default class Bala {
 
-    constructor(sprite) {
+    constructor(sprite, spriteImpactoAgua, sonidoImpactoAgua) {
         this._sprite = sprite;
         this._sprite.bala = this;
         this._sprite.preUpdate = this._preUpdate;
+
+        this._spriteImpactoAgua = spriteImpactoAgua;
+
+        this._sonidoImpactoAgua = sonidoImpactoAgua;
 
         this._viva = false;
     }
@@ -98,7 +102,9 @@ export default class Bala {
     }
 
     _hundir() {
-        // TODO: Animar hundimiento
+        this._spriteImpactoAgua.reset(this.x, this.y);
+        this._sonidoImpactoAgua.play();
+        this._spriteImpactoAgua.play('impactoAgua', 30, false, true);
     }
 
     _mover() {

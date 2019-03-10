@@ -53,7 +53,10 @@ export default class Partida {
         this.marcador = null;
 
         // animaciones
-        this.explosiones = null;
+        this.animaciones = null;
+
+        // sonidos
+        this.sonidos = null;
 
         // menu pausa
         this.menuPausa = null;
@@ -74,6 +77,7 @@ export default class Partida {
         this.cargarImagenes();
         this.cargarSpritesheets();
         this.cargarSpritePhysics();
+        this.cargarAudio();
 
         this.conectarWebsocket();
     }
@@ -87,6 +91,8 @@ export default class Partida {
         this.setearColisionesMapa();
 
         this.crearExplosiones();
+
+        this.crearSonidos();
         
         this.crearBarcos();
         this.setearColisionBarcos();
@@ -137,13 +143,22 @@ export default class Partida {
     cargarSpritesheets() {
         this.juego.load.spritesheet('explosionFinal', 'sprites/explosion.png', 128, 128);
         this.juego.load.spritesheet('explosionImpacto', 'sprites/explosion1.png', 64, 64);
-        //this.juego.load.spritesheet('explosionA', 'sprites/ExplosionAgua.png', 64, 64);
+        this.juego.load.spritesheet('impactoAgua', 'sprites/ExplosionAgua.png', 64, 64);
         this.juego.load.spritesheet('vidaHood', 'sprites/vida_hood.png',298, 60);
         this.juego.load.spritesheet('vidaBismarck', 'sprites/vida_bismarck.png', 290, 61);
     }
 
     cargarSpritePhysics() {
         this.juego.load.json('sprite_physics', 'sprites/sprite_physics.json');
+    }
+
+    cargarAudio() {
+        this.juego.load.audio('ambiente','audio/ambiente.wav');
+        this.juego.load.audio('barco','audio/Barco.wav');
+        this.juego.load.audio('disparo', 'audio/disparo.mp3');
+        this.juego.load.audio('impactoBala', 'audio/explosionImpacto.wav');
+        this.juego.load.audio('explosionFinal', 'audio/explosionFinal.wav');	
+        this.juego.load.audio('impactoAgua', 'audio/Splash.wav');
     }
 
     conectarWebsocket() {
@@ -254,26 +269,20 @@ export default class Partida {
     
         let vidaBismarck = this.juego.add.sprite(10, 1, 'vidaBismarck');
         
-        vidaBismarck.animations.add (200,[8]);
-        vidaBismarck.animations.add (175 ,[7]);
-        vidaBismarck.animations.add (150,[6]);
-        vidaBismarck.animations.add (125,[5]);
-        vidaBismarck.animations.add (100,[4]);
-        vidaBismarck.animations.add (75 ,[3]);
-        vidaBismarck.animations.add (50,[2]);
-        vidaBismarck.animations.add (25,[1]);
-        vidaBismarck.animations.add (0,[0]);
+        for (let i = 0; i <= 8; i++) {
+            let vida = i * 25;
+            vidaBismarck.animations.add(vida, [i]);
+        }
 
         vidaBismarck.fixedToCamera = true;
         vidaBismarck.cameraOffset.setTo(10, 10);
 
         let vidaHood = this.juego.add.sprite(10, 60, 'vidaHood');
         
-        vidaHood.animations.add (100,[4]);
-        vidaHood.animations.add (75,[3]);
-        vidaHood.animations.add (50,[2]);
-        vidaHood.animations.add (25,[1]);
-        vidaHood.animations.add (0,[0]);
+        for (let i = 0; i <= 4; i++) {
+            let vida = i * 25;
+            vidaHood.animations.add(vida, [i]);
+        }
 
         vidaHood.fixedToCamera = true;
         vidaHood.cameraOffset.setTo(10, 80);
@@ -290,25 +299,29 @@ export default class Partida {
     }
 
     crearExplosiones() {
-        this.explosiones = {
-            impacto: this.crearExplosion('explosionImpacto'),
-            final: this.crearExplosion('explosionFinal')
+        this.animaciones = {
+            explosionImpacto: this.crearSpriteAnimado('explosionImpacto'),
+            explosionFinal: this.crearSpriteAnimado('explosionFinal'),
+            impactoAgua: this.crearSpriteAnimado('impactoAgua')
         }
     }
 
-    crearExplosion(nombreSprite) {
-        let explosion = this.juego.add.group();
-        explosion.createMultiple(30, nombreSprite);
-        explosion.forEach(
-            function (entrada) {
-                entrada.anchor.x = 0.5;
-                entrada.anchor.y = 0.5;
-                entrada.animations.add(nombreSprite);
-            }
-        );
-        explosion.nombre = nombreSprite;
+    crearSonidos() {
+        this.sonidos = {
+            disparo: this.juego.add.audio('disparo'),
+            explosionImpacto: this.juego.add.audio('impactoBala'),
+            explosionFinal: this.juego.add.audio('explosionFinal'),
+            impactoAgua: this.juego.add.audio('impactoAgua')
+        }
+    }
 
-        return explosion;
+    crearSpriteAnimado(nombreSpriteSheet) {
+        let sprite = this.juego.add.sprite(0, 0, nombreSpriteSheet);
+        sprite.anchor.x = 0.5;
+        sprite.anchor.y = 0.5;
+        sprite.animations.add(nombreSpriteSheet);
+
+        return sprite;
     }
 
     crearBarcos() {
@@ -331,7 +344,8 @@ export default class Partida {
             spriteBismarck,
             Partida.VIDA_BISMARCK,
             Partida.VELOCIDAD_BISMARCK,
-            this.explosiones.final
+            this.animaciones.explosionFinal,
+            this.sonidos.explosionFinal
         );
         this.bismarck.grupoColision = this.gruposColision.bismarck;
     }
@@ -351,7 +365,8 @@ export default class Partida {
             spriteHood,
             Partida.VIDA_HOOD,
             Partida.VELOCIDAD_HOOD,
-            this.explosiones.final
+            this.animaciones.explosionFinal,
+            this.sonidos.explosionFinal
         );
         this.hood.grupoColision = this.gruposColision.hood;
     }
@@ -471,12 +486,12 @@ export default class Partida {
         this.juego.physics.p2.enable(spriteBala, Partida.VER_CUERPOS);
         spriteBala.body.setCircle(6);
 
-        let bala = new Bala(spriteBala);
+        let bala = new Bala(spriteBala, this.animaciones.impactoAgua, this.sonidos.impactoAgua);
         bala.grupoColision = grupoColisionBalas;
         bala.setearColision(barcoOpuesto.grupoColision, this.impactoBala, this);
         bala.setearColision(this.gruposColision.mapa);
 
-        let canion = new Canion(barco, 0, bala);
+        let canion = new Canion(barco, 0, bala, this.sonidos.disparo);
         barco.canionProa = canion;
     }
 
@@ -542,9 +557,10 @@ export default class Partida {
         bala._matar();
         bodyBarco.setZeroRotation();
 
-        let explosionImpacto = this.explosiones.impacto.getFirstExists(false);
-        explosionImpacto.reset(bala.x, bala.y);
-        explosionImpacto.play('explosionImpacto', 30, false, true);
+        let explosion = this.animaciones.explosionImpacto;
+        explosion.reset(bala.x, bala.y);
+        explosion.play('explosionImpacto', 30, false, true);
+        this.sonidos.explosionImpacto.play();
         if (barco.nombre == this.barcoEnemigo.nombre) {
             this.barcoEnemigo.registrarImpacto(bala.danio());
         }
