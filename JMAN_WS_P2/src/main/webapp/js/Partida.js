@@ -16,7 +16,7 @@ export default class Partida {
     static get DAMPING_ANGULAR_BARCO () { return 0.9; }
     static get VELOCIDAD_BISMARCK () { return 100; }
     static get VELOCIDAD_HOOD () { return 100; }
-    static get VER_CUERPOS () { return false; }
+    static get VER_CUERPOS () { return true; }
     static get VIDA_BISMARCK () { return 200; }
     static get VIDA_HOOD () { return 100; }
     
@@ -190,8 +190,6 @@ export default class Partida {
     }
 
     crearMapa() {
-        this.juego.world.setBounds(0, 0, 1920, 1200);
-
         let mapa = this.juego.add.tilemap('map', 32, 32);
         mapa.addTilesetImage('tiles');
 
@@ -206,7 +204,7 @@ export default class Partida {
         this.juego.physics.p2.convertTilemap(mapa, capa);
 
         // Definir los cuatro limites del mapa
-        this.juego.physics.p2.setBoundsToWorld(true, true, true, true, true);
+        this.juego.physics.p2.setBounds(0, 0, 3200, 3200, true, true, true, true, true);
     }
 
     crearGruposDeColision() {
@@ -451,8 +449,7 @@ export default class Partida {
     }
 
     crearArmas() {
-        // canion frontal bismarck
-        this.crearCanionProa(
+        this.crearCaniones(
             this.bismarck,
             this.hood,
             'balaBismarck',
@@ -460,8 +457,7 @@ export default class Partida {
             this.gruposColision.balasBismarck
         );
     
-        // canionProa hood
-        this.crearCanionProa(
+        this.crearCaniones(
             this.hood,
             this.bismarck,
             'balaHood',
@@ -471,14 +467,25 @@ export default class Partida {
     }
 
     /**
-     * Crea el canion de proa del barco
+     * Crea los caniones del barco
      * @param {Barco} barco 
      * @param {Barco} barcoOpuesto 
      * @param {string} imagenBala Nombre de la imagen de la bala
      * @param {number} escaladoBala Escalado de la imagen de la bala
      * @param {Phaser.Physics.CollisionGroup} grupoColisonBalas Grupo de colision de las balas
      */
-    crearCanionProa(barco, barcoOpuesto, imagenBala, escaladoBala, grupoColisionBalas) {
+    crearCaniones(barco, barcoOpuesto, imagenBala, escaladoBala, grupoColisionBalas) {
+        let balaProa = this.crearBala(barcoOpuesto, imagenBala, escaladoBala, grupoColisionBalas);
+        let balaPopa = this.crearBala(barcoOpuesto, imagenBala, escaladoBala, grupoColisionBalas);
+
+        let canionProa = new Canion(barco, 0, balaProa, this.sonidos.disparo);
+        barco.canionProa = canionProa;
+
+        let canionPopa = new Canion(barco, 180, balaPopa, this.sonidos.disparo);
+        barco.canionPopa = canionPopa;
+    }
+
+    crearBala(barcoOpuesto, imagenBala, escaladoBala, grupoColisionBalas) {
         let spriteBala = this.juego.add.sprite(0, 0, imagenBala);
         spriteBala.scale.setTo(escaladoBala, escaladoBala);
         spriteBala.anchor.setTo(0.5, 0.5);
@@ -486,13 +493,36 @@ export default class Partida {
         this.juego.physics.p2.enable(spriteBala, Partida.VER_CUERPOS);
         spriteBala.body.setCircle(6);
 
-        let bala = new Bala(spriteBala, this.animaciones.impactoAgua, this.sonidos.impactoAgua);
+        let bala = new Bala(spriteBala, this.animaciones.impactoAgua, this.sonidos.impactoAgua, this.animaciones.explosionImpacto, this.sonidos.explosionImpacto);
         bala.grupoColision = grupoColisionBalas;
-        bala.setearColision(barcoOpuesto.grupoColision, this.impactoBala, this);
-        bala.setearColision(this.gruposColision.mapa);
+        bala.setearColision(barcoOpuesto.grupoColision, this.impactoBalaBarco, this);
+        bala.setearColision(this.gruposColision.mapa, this.impactoBalaMapa, this);
+        
+        spriteBala.body.onBeginContact.add(this.balaBeginContact, bala);
 
-        let canion = new Canion(barco, 0, bala, this.sonidos.disparo);
-        barco.canionProa = canion;
+        return bala;
+    }
+
+    balaBeginContact(body, bodyB, shapeA, shapeB, equation) {
+        if(!body) { // si contacto con borde
+            this.desaparecer(); // this es la bala
+        }
+    }
+    
+    impactoBalaBarco(bodyBala, bodyBarco) {
+        let bala = bodyBala.sprite.bala;
+        let barco = bodyBarco.sprite.barco;
+        bala.explotar();
+        bodyBarco.setZeroRotation();
+
+        if (barco.nombre == this.barcoEnemigo.nombre) {
+            this.barcoEnemigo.registrarImpacto(bala.danio());
+        }
+    }
+    
+    impactoBalaMapa(bodyBala, bodyMapa) {
+        let bala = bodyBala.sprite.bala;
+        bala.desaparecer();
     }
 
     crearControles() {
@@ -518,8 +548,13 @@ export default class Partida {
     procesarEstado(estadoPartida) {
         if (estadoPartida.jugador == this.barcoEnemigo.nombre) {
             this.procesarEstadoEnemigo(estadoPartida);
-        } else if (estadoPartida.fuegoProa) {
-            this.barcoJugador.canionProa.disparar();
+        } else {
+            if (estadoPartida.fuegoProa) {
+                this.barcoJugador.canionProa.disparar();
+            }
+            if (estadoPartida.fuegoPopa) {
+                this.barcoJugador.canionPopa.disparar();
+            }
         }
     }
 
@@ -549,21 +584,6 @@ export default class Partida {
             barcoB.x,
             barcoB.y
         );
-    }
-    
-    impactoBala(bodyBala, bodyBarco) {
-        let bala = bodyBala.sprite.bala;
-        let barco = bodyBarco.sprite.barco;
-        bala._matar();
-        bodyBarco.setZeroRotation();
-
-        let explosion = this.animaciones.explosionImpacto;
-        explosion.reset(bala.x, bala.y);
-        explosion.play('explosionImpacto', 30, false, true);
-        this.sonidos.explosionImpacto.play();
-        if (barco.nombre == this.barcoEnemigo.nombre) {
-            this.barcoEnemigo.registrarImpacto(bala.danio());
-        }
     }
 
     actualizarVidas() {
@@ -657,6 +677,11 @@ export default class Partida {
             this.barcoJugador.fuegoProa = true;
         } else {
             this.barcoJugador.fuegoProa = false;
+        }
+        if (this.controles.fuegoPopa) {
+            this.barcoJugador.fuegoPopa = true;
+        } else {
+            this.barcoJugador.fuegoPopa = false;
         }
     }
 

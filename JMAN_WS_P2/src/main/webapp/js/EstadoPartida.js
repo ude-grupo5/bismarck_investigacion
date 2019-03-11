@@ -8,6 +8,7 @@ export default class EstadoPartida {
         this.velocidadX = barcoJugador.velocidadX;
         this.velocidadY = barcoJugador.velocidadY;
         this.fuegoProa = barcoJugador.fuegoProa;
+        this.fuegoPopa = barcoJugador.fuegoPopa;
         this.enemigoImpactado = barcoEnemigo.impactado;
         this.danioImpacto = barcoEnemigo.danioImpacto;
     }

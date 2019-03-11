@@ -1,13 +1,16 @@
 export default class Bala {
 
-    constructor(sprite, spriteImpactoAgua, sonidoImpactoAgua) {
+    constructor(sprite, spriteImpactoAgua, sonidoImpactoAgua,
+            spriteImpactoBarco, sonidoImpactoBarco) {
         this._sprite = sprite;
         this._sprite.bala = this;
         this._sprite.preUpdate = this._preUpdate;
 
         this._spriteImpactoAgua = spriteImpactoAgua;
+        this._spriteImpactoBarco = spriteImpactoBarco
 
         this._sonidoImpactoAgua = sonidoImpactoAgua;
+        this._sonidoImpactoBarco = sonidoImpactoBarco;
 
         this._viva = false;
     }
@@ -55,6 +58,18 @@ export default class Bala {
             danio = this._danioMaximo / 2;
         }
         return danio;
+    }
+
+    desaparecer() {
+        this._matar();
+    }
+
+    explotar() {
+        this._matar();
+
+        this._spriteImpactoBarco.reset(this.x, this.y);
+        this._spriteImpactoBarco.play('explosionImpacto', 30, false, true);
+        this._sonidoImpactoBarco.play();
     }
 
     revivir() {

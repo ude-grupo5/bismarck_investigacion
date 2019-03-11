@@ -25,6 +25,8 @@ export default class Barco {
     //      SETTERS
     // ########################################################################
 
+    set canionPopa (canion) {  this._canionPopa = canion; }
+
     set canionProa (canion) {  this._canionProa = canion; }
 
     set grupoColision (grupoColision) {
@@ -37,6 +39,8 @@ export default class Barco {
     // ########################################################################
 
     get angulo () { return this.sprite.angle; }
+
+    get canionPopa () { return this._canionPopa; }
 
     get canionProa () { return this._canionProa; }
 
@@ -98,6 +102,9 @@ export default class Barco {
         this.sprite.body.velocity.y = estadoPartida.velocidadY;
         if (estadoPartida.fuegoProa) {
             this.canionProa.disparar();
+        }
+        if (estadoPartida.fuegoPopa) {
+            this.canionPopa.disparar();
         }
     }
 
