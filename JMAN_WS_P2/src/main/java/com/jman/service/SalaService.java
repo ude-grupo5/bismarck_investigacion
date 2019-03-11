@@ -3,17 +3,16 @@ package com.jman.service;
 import java.util.Optional;
 
 import com.jman.io.LeerArchivo;
-import com.jman.model.EstadoPartida;
 
 public class SalaService {
-	public Optional<EstadoPartida> getPartida() {
+	public Optional<String> getPartida() {
 		LeerArchivo obj = new LeerArchivo();
 
-		EstadoPartida estadoPartida = obj.deserealizar("c:\\temp\\ultima_partida.ser");
+		String estadoGuardado = obj.leer("c:\\temp\\ultima_partida.ser");
 		
-		if (estadoPartida != null) {
+		if (estadoGuardado != null) {
 			System.out.println("acrhivo encontrado");
-			return Optional.of(estadoPartida);
+			return Optional.of(estadoGuardado);
 		} else {
 			System.out.println("archivo vacío");
 			return Optional.empty();

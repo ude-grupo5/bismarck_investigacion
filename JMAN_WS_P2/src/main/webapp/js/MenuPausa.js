@@ -1,15 +1,14 @@
 export default class MenuPausa {
 
-    constructor(juego) {
-        this._juego = juego;
-
+    constructor(partida) {
+        this._partida = partida;
         this._divMenu = document.getElementById('fondo_menu_pausa');
 
         this._agregarAccionesBotones();
     }
 
     // ########################################################################
-    //      METODOS PUBLICOS
+    // METODOS PUBLICOS
     // ########################################################################
 
     mostrar() {
@@ -21,7 +20,7 @@ export default class MenuPausa {
     }
 
     // ########################################################################
-    //      METODOS PRIVADOS
+    // METODOS PRIVADOS
     // ########################################################################
 
     _agregarAccionesBotones() {
@@ -29,20 +28,19 @@ export default class MenuPausa {
         let botonSeguir = document.getElementById('boton_seguir');
         let botonSalir = document.getElementById('boton_salir');
 
-        botonGuardar.addEventListener('click', ()=>{
+        botonGuardar.addEventListener('click', () => {
             this._accionClickGuardar();
         });
-        botonSeguir.addEventListener('click', ()=>{
+        botonSeguir.addEventListener('click', () => {
             this._accionClickSeguir();
         });
-        botonSalir.addEventListener('click', ()=>{
+        botonSalir.addEventListener('click', () => {
             this._accionClickSalir();
         });
     }
 
     _accionClickGuardar() {
-        // TODO: accionClickGuardar
-        console.log('TODO: accionClickGuardar');
+        this._guardar();
     }
 
     _accionClickSeguir() {
@@ -55,4 +53,19 @@ export default class MenuPausa {
         console.log('TODO: accionClickSalir');
     }
 
+    _guardar() {
+        // conecta el websocket y guarda
+        
+        let host = document.location.host;
+        let pathname = document.location.pathname;
+    
+        this.websocket = new WebSocket("ws://" + host + "/websockets/guardar/" + JSON.stringify(this._partida.estadoGuardado));
+        
+        this.websocket.onmessage = function(event) {
+            let resultado = event.data;
+
+            console.log('resultado guardar: ' + resultado);
+            // TODO: comunicar resultado
+        };
+    }
 }

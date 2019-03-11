@@ -1,14 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
-<%@ page import="com.google.gson.Gson"%>
-<%@ page import="com.jman.model.EstadoPartida"%>
 
 <%
 	String jsonEstadoPartida = "";
 	if (request.getAttribute("estadoPartida") != null) {
 
-		Gson gson = new Gson();
-		jsonEstadoPartida = gson.toJson(request.getAttribute("estadoPartida"));
+		jsonEstadoPartida = (String) request.getAttribute("estadoPartida");
 	}
 %>
 
@@ -16,14 +13,13 @@
 <html lang="es">
 
 <head>
-	<meta charset="UTF-8">
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-	<link rel="stylesheet" type="text/css" href="css/index.css">
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/index.css">
 </head>
 
 <body>
-	<span id="jsonEstadoPartidaStr" style="display:none;">
-		<%=jsonEstadoPartida%></span>
+	<span id="jsonEstadoPartidaStr" style="display: none;"> <%=jsonEstadoPartida%></span>
 	<div class="modal fade" id="modalError" role="dialog">
 		<div class="modal-dialog">
 
@@ -31,23 +27,23 @@
 
 				<div class="modal-body text-center">
 
-					<p id="error">
-
-					</p>
+					<p id="error"></p>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<div class="modal fade" data-backdrop="static" data-keyboard="false" id="modalBuscando" role="dialog">
+	<div class="modal fade" data-backdrop="static" data-keyboard="false"
+		id="modalBuscando" role="dialog">
 		<div class="modal-dialog text-center">
 			<div class="modal-content">
 				<div class="modal-body text-center">
-					Estamos buscando a su oponente Capit&aacute;n
-					<img src="media/tenor.gif" height="207" width="470">
+					Estamos buscando a su oponente Capit&aacute;n <img
+						src="media/tenor.gif" height="207" width="470">
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-outline-danger" id="buttonCancelarBuscar">Detener la B&uacute;squeda</button>
+					<button type="button" class="btn btn-outline-danger"
+						id="buttonCancelarBuscar">Detener la B&uacute;squeda</button>
 				</div>
 			</div>
 		</div>
@@ -60,17 +56,14 @@
 	</video>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col">
-			</div>
+			<div class="col"></div>
 			<div class="col">
 				<ul class="nav justify-content-center">
-					<li class="nav-item">
-						<a class="nav-link active" href="#">Ayuda</a>
+					<li class="nav-item"><a class="nav-link active" href="#">Ayuda</a>
 					</li>
 				</ul>
 			</div>
-			<div class="col">
-			</div>
+			<div class="col"></div>
 		</div>
 		<div class="row">
 			<div class="col">
@@ -85,12 +78,11 @@
 
 				<div class="card text-center text-white bg-dark">
 
-					<div class="card-header">
-						Nueva Partida
-					</div>
+					<div class="card-header">Nueva Partida</div>
 					<div class="card-body">
 						<div class="form-group">
-							<input type="text" class="form-control" id="inputNombreNuevo" placeholder="Ingrese su nombre Capit&aacute;n">
+							<input type="text" class="form-control" id="inputNombreNuevo"
+								placeholder="Ingrese su nombre Capit&aacute;n">
 						</div>
 						<div class="form-group">
 							<select class="form-control" id="selectBarcoNuevo">
@@ -101,62 +93,65 @@
 						</div>
 					</div>
 					<div class="card-footer text-muted">
-						<button type="button" class="btn btn-outline-light" id="buttonNuevaPartida">Buscar oponente</button>
+						<button type="button" class="btn btn-outline-light"
+							id="buttonNuevaPartida">Buscar oponente</button>
 					</div>
 				</div>
 			</div>
-			<div class="col">
-			</div>
+			<div class="col"></div>
 		</div>
 		<div class="row">
 			<br>
 		</div>
 
-		<%
-			if (request.getAttribute("estadoPartida") != null) {
-				EstadoPartida estadoPartida = (EstadoPartida) request.getAttribute("estadoPartida");
-		%>
-
-		<div class="row">
-			<div class="col">
-			</div>
+		<div class="row" id="filaContinuar">
+			<div class="col"></div>
 			<div class="col">
 				<div class="card text-center text-white bg-dark">
-					<div class="card-header">
-						Continuar Partida Guardada
-					</div>
+					<div class="card-header">Continuar Partida Guardada</div>
 					<div class="card-body">
 						<form>
 							<div class="form-group">
 								<div class="form-group">
-									<select class="custom-select" onchange="cambiarBarco()" id="selectBarcoContinuar">
-										<option value="" selected="">Indetif&iacute;quese Capit&aacute;n</option>
-										<option value="Bizmarck">
-											<%=estadoPartida.getBizmarckNombreJugador()%>
-										</option>
-										<option value="Hood">
-											<%=estadoPartida.getHookNombreJugador()%>
-										</option>
+									<select class="custom-select" onchange="cambiarBarco()"
+										id="selectBarcoContinuar">
+										<option value="" selected="">Indetif&iacute;quese
+											Capit&aacute;n</option>
+										<option value="Bizmarck"></option>
+										<option value="Hood"></option>
 									</select>
 								</div>
 								<div class="form-group">
-									<input type="text" class="form-control" readonly id="inputNombreContinuar">
+									<input type="text" class="form-control" readonly
+										id="inputNombreContinuar">
 								</div>
 							</div>
 						</form>
 					</div>
 					<div class="card-footer text-muted">
-						<button type="button" class="btn btn-outline-light" id="buttonContinuar">Continuar</button>
+						<button type="button" class="btn btn-outline-light"
+							id="buttonContinuar">Continuar</button>
 					</div>
 				</div>
 			</div>
-			<div class="col">
-			</div>
+			<div class="col"></div>
 		</div>
 
-		<%
-	}
-		%>
+		<div class="row" id="filaContinuarError">
+			<div class="col"></div>
+			<div class="col">
+				<div class="alert danger-warning alert-dismissible fade show"
+					role="alert">
+					<strong>Diablos!</strong> No pudimos cargar el archivo para
+					continuar la partida.
+					<button type="button" class="close" data-dismiss="alert"
+						aria-label="Cerrar">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+			</div>
+			<div class="col"></div>
+		</div>
 
 	</div>
 	<script type="text/javascript" src="js/lib/jquery-3.3.1.min.js"></script>

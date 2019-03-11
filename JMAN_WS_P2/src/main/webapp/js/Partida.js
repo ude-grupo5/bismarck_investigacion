@@ -1,5 +1,6 @@
 import Controles from './Controles.js';
 import EstadoPartida from './EstadoPartida.js';
+import EstadoGuardado from './EstadoGuardado.js';
 import Barco from './Barco.js';
 import Bala from './Bala.js';
 import Canion from './Canion.js';
@@ -121,6 +122,8 @@ export default class Partida {
         this.enviarEstadoPartida();
         this.actualizarVidas();
         this.actualizarMarcador();
+        
+        this.estadoGuardado = new EstadoGuardado();
     }
 
     /*************************************************************************
@@ -293,7 +296,7 @@ export default class Partida {
     }
 
     crearMenuPausa() {
-        this.menuPausa = new MenuPausa(this.juego);
+        this.menuPausa = new MenuPausa(this);
     }
 
     crearExplosiones() {
@@ -436,12 +439,8 @@ export default class Partida {
     }
 
     obtenerBarcoJugador() {
-        let estadoPartidaRecibido = JSON.parse(sessionStorage.estadoPartida);
-
-		//estadoPartidaRecibido.tipoPartida = "NUEVA";
-		//estadoPartidaRecibido.nombreLocal = nombre;
-
-        return estadoPartidaRecibido.barcoLocal;
+        let parametrosSala = JSON.parse(sessionStorage.parametrosSala);
+        return parametrosSala.barcoLocal;
     }
 
     crearPunteroEnemigo() {

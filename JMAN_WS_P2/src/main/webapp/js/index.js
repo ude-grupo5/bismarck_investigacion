@@ -1,7 +1,34 @@
 var websocket;
 var TIEMPO_MAX_BUSQUEDA_PARTIDA = 30000; // miliseguntos
-var estadoPartidaParaEnviar;
+var parametrosSala;
 var timeOutDesconectar;
+
+window.onload = function() {
+	$("#filaContinuarError").hide();
+	try {
+		let estadoGuardado = getEstadoGuardado();
+		if (estadoGuardado == null) {
+			$("#filaContinuar").hide();
+		} else {
+
+			let select = document.getElementById("selectBarcoContinuar");
+
+			let optB = document.createElement('option');
+			optB.value = "Bizmarck";
+			optB.innerHTML = "TODO: nombre del jugador Bizmarck"; // estadoGuardado.;
+			select.appendChild(optB);
+
+			let optH = document.createElement('option');
+			optH.value = "Hood";
+			optH.innerHTML = "TODO: nombre del jugador Hood"; // estadoGuardado.;
+			select.appendChild(optH);
+		}
+	} catch (error) {
+		console.log(error);
+		$("#filaContinuar").hide();
+		$("#filaContinuarError").show();
+	}
+}
 
 function mostrarError(mensaje) {
 	$("#error").html(mensaje);
@@ -12,14 +39,19 @@ function mostrarBuscandoPartida() {
 	$('#modalBuscando').modal('show');
 }
 
-function getJSONObj() {
-	let estadoPartida;
-	let myJSONtext = document.getElementById("jsonEstadoPartidaStr").innerHTML;
-	estadoPartida = eval('(' + myJSONtext + ')');
-	return estadoPartida;
+function getEstadoGuardado() {
+	let estadoGuardado = null;
+	let estadoGuardadoStr = document.getElementById("jsonEstadoPartidaStr").innerHTML;
+	
+	console.log("estadoGuardadoStr: " + estadoGuardadoStr);
+	
+	if (estadoGuardadoStr != null) {
+		estadoGuardado = JSON.parse(estadoGuardadoStr);
+	}
+	return estadoGuardado;
 }
 
-$('#buttonNuevaPartida').click(function () {
+$('#buttonNuevaPartida').click(function() {
 	let nombre = document.getElementById("inputNombreNuevo").value;
 	let b = document.getElementById("selectBarcoNuevo");
 	let barco = b.options[b.selectedIndex].value;
@@ -29,19 +61,19 @@ $('#buttonNuevaPartida').click(function () {
 	} else if (isEmpty(nombre)) {
 		mostrarError("Debe ingresar su nombre Capit&aacute;n");
 	} else {
-		estadoPartidaParaEnviar = new Object();
+		parametrosSala = new Object();
 
-		estadoPartidaParaEnviar.barcoLocal = barco;
-		estadoPartidaParaEnviar.tipoPartida = "NUEVA";
-		estadoPartidaParaEnviar.nombreLocal = nombre;
+		parametrosSala.barcoLocal = barco;
+		parametrosSala.tipoPartida = "NUEVA";
+		parametrosSala.nombreLocal = nombre;
 
-		sessionStorage.estadoPartida = JSON.stringify(estadoPartidaParaEnviar);
+		sessionStorage.parametrosSala = JSON.stringify(parametrosSala);
 
 		buscarPartida();
 	}
 });
 
-$('#buttonContinuar').click(function () {
+$('#buttonContinuar').click(function() {
 	let b = document.getElementById("selectBarcoContinuar");
 	let barco = b.options[b.selectedIndex].value;
 	let nombre = b.options[b.selectedIndex].text;
@@ -49,13 +81,12 @@ $('#buttonContinuar').click(function () {
 	if (isEmpty(barco)) {
 		mostrarError("Identif&iacute;quese Capit&aacute;n");
 	} else {
-		estadoPartidaParaEnviar = getJSONObj();
+		parametrosSala.barcoLocal = barco;
+		parametrosSala.tipoPartida = "GUARDADA";
+		parametrosSala.nombreLocal = nombre;
+		parametrosSala.estadoGuardado = getEstadoGuardado();
 
-		estadoPartidaParaEnviar.barcoLocal = barco;
-		estadoPartidaParaEnviar.tipoPartida = "GUARDADA";
-		estadoPartidaParaEnviar.nombreLocal = nombre;
-
-		sessionStorage.estadoPartida = JSON.stringify(estadoPartidaParaEnviar);
+		sessionStorage.parametrosSala = JSON.stringify(parametrosSala);
 
 		buscarPartida();
 	}
@@ -73,10 +104,10 @@ function buscarPartida() {
 	let host = document.location.host;
 	let pathname = document.location.pathname;
 
-	websocket = new WebSocket("ws://" + host + pathname + "sala/" +
-		estadoPartidaParaEnviar.barcoLocal);
+	websocket = new WebSocket("ws://" + host + pathname + "sala/"
+			+ parametrosSala.barcoLocal);
 
-	websocket.onmessage = function (event) {
+	websocket.onmessage = function(event) {
 
 		let mensaje = event.data;
 
@@ -92,12 +123,13 @@ function buscarPartida() {
 }
 
 function enviarPeticionPartida() {
-	timeOutDesconectar = window.setTimeout(desconectar, TIEMPO_MAX_BUSQUEDA_PARTIDA);
+	timeOutDesconectar = window.setTimeout(desconectar,
+			TIEMPO_MAX_BUSQUEDA_PARTIDA);
 
 	let jsonMensajeSala = JSON.stringify({
-		"tipoPartida": estadoPartidaParaEnviar.tipoPartida,
-		"nombreJugador": estadoPartidaParaEnviar.nombreLocal,
-		"barco": estadoPartidaParaEnviar.barcoLocal
+		"tipoPartida" : parametrosSala.tipoPartida,
+		"nombreJugador" : parametrosSala.nombreLocal,
+		"barco" : parametrosSala.barcoLocal
 	});
 
 	websocket.send(jsonMensajeSala);
@@ -109,15 +141,15 @@ function desconectar() {
 		websocket.close();
 	} catch (ex) {
 
-	} 
+	}
 }
 
-$('#buttonCancelarBuscar').click(function () {
+$('#buttonCancelarBuscar').click(function() {
 	clearTimeout(timeOutDesconectar);
 	desconectar();
 });
 
-function cambiarBarco(){
+function cambiarBarco() {
 	let b = document.getElementById("selectBarcoContinuar");
 	document.getElementById('inputNombreContinuar').value = b.options[b.selectedIndex].value;
 }

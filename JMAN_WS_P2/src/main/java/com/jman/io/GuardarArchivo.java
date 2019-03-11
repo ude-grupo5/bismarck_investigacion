@@ -6,18 +6,16 @@ import java.io.ObjectOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jman.model.EstadoPartida;
-
 public class GuardarArchivo {
 
-	public void guardar(EstadoPartida estadoPartida) {
+	public void guardar(String estadoPartida) {
 		FileOutputStream fout = null;
 		ObjectOutputStream oos = null;
-		
+
 		try {
 			fout = new FileOutputStream("c:\\temp\\ultima_partida.ser");
 			oos = new ObjectOutputStream(fout);
-			oos.writeObject(estadoPartida);			
+			oos.writeObject("{" + estadoPartida + "}");
 
 			Logger.getLogger(GuardarArchivo.class.getName()).log(Level.INFO, "Archivo guardado");
 		} catch (Exception ex) {

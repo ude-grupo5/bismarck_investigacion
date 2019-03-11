@@ -6,19 +6,18 @@ import java.io.ObjectInputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.jman.model.EstadoPartida;
-
 public class LeerArchivo {
-	public EstadoPartida deserealizar(String fileName) {
-		EstadoPartida estadoPartida = null;
-		
+
+	public String leer(String fileName) {
+		String estadoPartida = null;
+
 		FileInputStream fin = null;
 		ObjectInputStream ois = null;
 
 		try {
 			fin = new FileInputStream(fileName);
 			ois = new ObjectInputStream(fin);
-			estadoPartida = (EstadoPartida) ois.readObject();
+			estadoPartida = (String) ois.readObject();
 		} catch (Exception ex) {
 			Logger.getLogger(LeerArchivo.class.getName()).log(Level.SEVERE, ex.getMessage());
 		} finally {

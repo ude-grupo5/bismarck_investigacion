@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.jman.service.SalaService;
 
-//, urlPatterns = "/index.jsp"
-
 @WebServlet(name = "SalaServlet", urlPatterns = "")
 public class SalaServlet extends HttpServlet {
 
@@ -22,15 +20,8 @@ public class SalaServlet extends HttpServlet {
 	private void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		//Logger.getLogger(EndpointSala.class.getName()).log(Level.INFO, "estoy en el servlet");
-
 		salaService.getPartida().ifPresent(s -> request.setAttribute("estadoPartida", s));
 
-		/*
-		EstadoPartida s = new EstadoPartida();
-		s.setBizmarckNombreJugador("peteco");
-		request.setAttribute("estadoPartida", s);
-		*/
 		RequestDispatcher dispatcher = request.getRequestDispatcher("/index.jsp");
 		dispatcher.forward(request, response);
 	}
