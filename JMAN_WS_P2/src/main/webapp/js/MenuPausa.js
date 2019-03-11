@@ -3,6 +3,16 @@ export default class MenuPausa {
     constructor(partida) {
         this._partida = partida;
         this._divMenu = document.getElementById('fondo_menu_pausa');
+    
+        let host = document.location.host;
+        this._websocket = new WebSocket("ws://" + host + '/websockets/guardar/');
+        this._websocket.onmessage = function(event) {
+            let resultado = event.data;
+
+            console.log('resultado guardar: ' + resultado);
+            // TODO: comunicar resultado
+            console.log('TODO: comunicar resultado');
+        };
 
         this._agregarAccionesBotones();
     }
@@ -45,7 +55,7 @@ export default class MenuPausa {
 
     _accionClickSeguir() {
         this.ocultar();
-        this._juego.paused = false;
+        this._partida.reanudar();
     }
 
     _accionClickSalir() {
@@ -54,18 +64,7 @@ export default class MenuPausa {
     }
 
     _guardar() {
-        // conecta el websocket y guarda
-        
-        let host = document.location.host;
-        let pathname = document.location.pathname;
-    
-        this.websocket = new WebSocket("ws://" + host + "/websockets/guardar/" + JSON.stringify(this._partida.estadoGuardado));
-        
-        this.websocket.onmessage = function(event) {
-            let resultado = event.data;
-
-            console.log('resultado guardar: ' + resultado);
-            // TODO: comunicar resultado
-        };
+        let estadoGuardadoStr =  JSON.stringify(this._partida.estadoGuardado);
+        this._websocket.send(estadoGuardadoStr);
     }
 }

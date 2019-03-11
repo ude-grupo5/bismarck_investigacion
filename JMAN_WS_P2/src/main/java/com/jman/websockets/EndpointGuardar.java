@@ -15,16 +15,19 @@ import javax.websocket.server.PathParam;
 
 import com.jman.io.GuardarArchivo;
 
-@ServerEndpoint(value = "/guardar/{estadoGuardado}")
+@ServerEndpoint(value = "/guardar/")
 public class EndpointGuardar {
 
 	// private Session session;
 
 	@OnOpen
-	public void onOpen(Session session, @PathParam("estadoGuardado") String estadoGuardado)
+	public void onOpen(Session session)
 			throws IOException, EncodeException {
-		// this.session = session;
+		Logger.getLogger(GuardarArchivo.class.getName()).log(Level.INFO, "Websocket guardar abierto. Sesion: " + session);
+	}
 
+	@OnMessage
+	public void onMessage(Session session, String estadoGuardado) throws IOException, EncodeException {
 		Logger.getLogger(GuardarArchivo.class.getName()).log(Level.INFO, "estado guardado: " + estadoGuardado);
 		
 		try {
@@ -35,11 +38,6 @@ public class EndpointGuardar {
 		} catch (Exception e) {
 			session.getBasicRemote().sendText("ERROR");
 		}
-	}
-
-	@OnMessage
-	public void onMessage(Session session, String mensaje) throws IOException, EncodeException {
-		// Nothing
 	}
 
 	@OnClose

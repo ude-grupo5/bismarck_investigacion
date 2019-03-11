@@ -1,6 +1,6 @@
 export default class EstadoGuardado {
 
     constructor() {
-        this.prueba = "HOLA MUNDO CRUEL";
+        this.prueba = "HOLA MUNDO CRUEL Y SADICO";
     }
 }

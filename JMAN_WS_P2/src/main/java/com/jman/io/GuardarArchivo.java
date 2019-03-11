@@ -15,9 +15,11 @@ public class GuardarArchivo {
 		try {
 			fout = new FileOutputStream("c:\\temp\\ultima_partida.ser");
 			oos = new ObjectOutputStream(fout);
-			oos.writeObject("{" + estadoPartida + "}");
+			//oos.writeObject("{" + estadoPartida + "}");
+			oos.writeObject(estadoPartida);
 
 			Logger.getLogger(GuardarArchivo.class.getName()).log(Level.INFO, "Archivo guardado");
+			Logger.getLogger(GuardarArchivo.class.getName()).log(Level.INFO, "Contenido: " + estadoPartida);
 		} catch (Exception ex) {
 			Logger.getLogger(GuardarArchivo.class.getName()).log(Level.SEVERE, ex.getMessage());
 		} finally {
