@@ -1,19 +1,18 @@
-package com.baeldung.websocket;
+package com.jman.model;
 
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EndpointConfig;
 
-import com.baeldung.model.Message;
 import com.google.gson.Gson;
 
-public class MessageDecoder implements Decoder.Text<Message> {
+public class MensajeSalaDecoder implements Decoder.Text<MensajeSala> {
 
     private static Gson gson = new Gson();
 
     @Override
-    public Message decode(String s) throws DecodeException {
-        Message message = gson.fromJson(s, Message.class);
+    public MensajeSala decode(String s) throws DecodeException {
+        MensajeSala message = gson.fromJson(s, MensajeSala.class);
         return message;
     }
 

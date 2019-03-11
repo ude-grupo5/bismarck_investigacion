@@ -18,7 +18,3 @@ video {
 .color-seleccionado,.color-seleccionado:active{
     background-color: cadetblue;
 }
-
-.alert{
-    display: none;
-}

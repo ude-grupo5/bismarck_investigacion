@@ -424,7 +424,7 @@ export default class Partida {
     }
 
     asignarBarcos() {
-        let barcoElegido = this.obtenerBarcoURL();
+        let barcoElegido = this.obtenerBarcoJugador();
         if (barcoElegido == "Bismarck") {
             this.barcoJugador = this.bismarck;
             this.barcoEnemigo = this.hood;
@@ -435,11 +435,13 @@ export default class Partida {
         this.barcoEnemigo.ocultar();
     }
 
-    obtenerBarcoURL() {
-        let url_string = window.location.href;
-        let url = new URL(url_string);
-        let barco = url.searchParams.get("barco");
-        return barco;
+    obtenerBarcoJugador() {
+        let estadoPartidaRecibido = JSON.parse(sessionStorage.estadoPartida);
+
+		//estadoPartidaRecibido.tipoPartida = "NUEVA";
+		//estadoPartidaRecibido.nombreLocal = nombre;
+
+        return estadoPartidaRecibido.barcoLocal;
     }
 
     crearPunteroEnemigo() {
