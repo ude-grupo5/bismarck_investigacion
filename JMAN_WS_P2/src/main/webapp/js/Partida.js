@@ -12,15 +12,25 @@ export default class Partida {
 
     static get ESCALADO_BISMARCK () { return 0.15; }
     static get ESCALADO_BALA_BISMARCK () { return 1; }
+    static get VELOCIDAD_BISMARCK () { return 100; }
+    static get VIDA_BISMARCK () { return 200; }
+    static get X_INICIAL_BISMARCK () { return 650; }
+    static get Y_INICIAL_BISMARCK () { return 400; }
+    
     static get ESCALADO_HOOD () { return 0.15; }
     static get ESCALADO_BALA_HOOD () { return 1; }
+    static get VELOCIDAD_HOOD () { return 100; }
+    static get VIDA_HOOD () { return 100; }
+    static get X_INICIAL_HOOD () { return 900; }
+    static get Y_INICIAL_HOOD () { return 900; }
+    
+    static get X_META () { return 570; }
+    static get Y_META () { return 340; }
+
     static get DAMPING_BARCO () { return 0.8; }
     static get DAMPING_ANGULAR_BARCO () { return 0.9; }
-    static get VELOCIDAD_BISMARCK () { return 100; }
-    static get VELOCIDAD_HOOD () { return 100; }
-    static get VER_CUERPOS () { return true; }
-    static get VIDA_BISMARCK () { return 200; }
-    static get VIDA_HOOD () { return 100; }
+
+    static get VER_CUERPOS () { return false; }
     
     /**
      * Constructor
@@ -45,6 +55,9 @@ export default class Partida {
         this.barcoEnemigo = null;
         this.bismarck = null;
         this.hood = null;
+
+        // triggers
+        this.triggerBismarck = null;
 
         // puntero
         this.punteroEnemigo = null;
@@ -81,6 +94,14 @@ export default class Partida {
     }
 
     // ########################################################################
+    // FUNCIONES VICTORIA
+    // ########################################################################
+    
+    victoriaJugadorPorMeta() {
+        alert('Has ganado');
+    }
+
+    // ########################################################################
     // FUCIONES ESTANDAR DE PHASER
     // ########################################################################
     
@@ -105,6 +126,12 @@ export default class Partida {
         this.crearExplosiones();
 
         this.crearSonidos();
+
+        this.crearMeta();
+
+        if (this.obtenerBarcoJugador() == "Bismarck") {
+            this.crearTriggerBismarck();
+        }
         
         this.crearBarcos();
         this.setearColisionBarcos();
@@ -162,6 +189,11 @@ export default class Partida {
         this.juego.load.spritesheet('impactoAgua', 'sprites/ExplosionAgua.png', 64, 64);
         this.juego.load.spritesheet('vidaHood', 'sprites/vida_hood.png',298, 60);
         this.juego.load.spritesheet('vidaBismarck', 'sprites/vida_bismarck.png', 290, 61);
+        this.juego.load.atlas(
+            'meta',
+            'sprites/meta_texture_atlas.png',
+            'sprites/meta_texture_atlas.json'
+        );
     }
 
     cargarSpritePhysics() {
@@ -226,7 +258,9 @@ export default class Partida {
             balasHood: p2.createCollisionGroup(),
             bismarck: p2.createCollisionGroup(),
             hood: p2.createCollisionGroup(),
-            mapa: p2.createCollisionGroup()
+            mapa: p2.createCollisionGroup(),
+            meta: p2.createCollisionGroup(),
+            triggerBismarck: p2.createCollisionGroup()
         }
     }
 
@@ -334,6 +368,45 @@ export default class Partida {
         return sprite;
     }
 
+    crearMeta() {
+        let meta = this.juego.add.sprite(Partida.X_META, Partida.Y_META, 'meta');
+        meta.animations.add(
+            'meta',
+            [
+                'meta1', 'meta2', 'meta3', 'meta4', 'meta5', 'meta6',
+                'meta5', 'meta4', 'meta3', 'meta2'
+            ],
+            10,
+            true
+        );
+        meta.animations.play('meta');
+
+        this.juego.physics.p2.enable(meta, Partida.VER_CUERPOS);
+        meta.body.setCircle(45);
+        meta.body.static = true;
+
+        meta.body.meta = true;
+        
+        //meta.body.setCollisionGroup(this.gruposColision.meta);
+    }
+
+    crearTriggerBismarck() {
+        let trigger = this.juego.add.sprite(0, 0, null);
+        this.juego.physics.p2.enable(trigger, Partida.VER_CUERPOS);
+        trigger.body.setCircle(10);
+        //trigger.body.setCollisionGroup(this.gruposColision.triggerBismarck);
+
+        trigger.body.onBeginContact.add(this.triggerBismarckBeginContact, this);
+        
+        this.triggerBismarck = trigger;
+    }
+
+    triggerBismarckBeginContact(body/*, bodyB, shapeA, shapeB, equation*/) {
+        if(body && body.meta) {
+            this.victoriaJugadorPorMeta();
+        }
+    }
+
     crearBarcos() {
         this.crearBismarck();
         this.crearHood();
@@ -341,8 +414,8 @@ export default class Partida {
 
     crearBismarck() {
         let spriteBismarck = this.crearSpriteBarco(
-            2400,
-            2700,
+            Partida.X_INICIAL_BISMARCK,
+            Partida.Y_INICIAL_BISMARCK,
             'bismarck',
             'Modelo_bismarck',
             Partida.ESCALADO_BISMARCK,
@@ -362,8 +435,8 @@ export default class Partida {
 
     crearHood() {
         let spriteHood = this.crearSpriteBarco(
-            2000,
-            2700,
+            Partida.X_INICIAL_HOOD,
+            Partida.Y_INICIAL_HOOD,
             'hood',
             'Modelo_hood',
             Partida.ESCALADO_HOOD,
@@ -626,6 +699,9 @@ export default class Partida {
         this.updateVelocidadJugador();
         this.updateRotacionJugador();
         this.barcoJugador.mover();
+        if (this.obtenerBarcoJugador() == 'Bismarck') {
+            this.updatePosicionTriggerBismarck();
+        }
     }
 
     updatePausaJugador() {
@@ -653,6 +729,11 @@ export default class Partida {
         if (this.controles.derecha) {
             this.barcoJugador.virarAEstribor();
         }
+    }
+
+    updatePosicionTriggerBismarck() {
+        this.triggerBismarck.body.x = this.bismarck.x;
+        this.triggerBismarck.body.y = this.bismarck.y;
     }
 
     updatePunteroEnemigo() {
