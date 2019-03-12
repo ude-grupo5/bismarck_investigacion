@@ -6,6 +6,7 @@ import Bala from './Bala.js';
 import Canion from './Canion.js';
 import Geometria from './util/Geometria.js';
 import MenuPausa from './MenuPausa.js';
+import Config from './config/Config.js';
 
 export default class Partida {
 
@@ -25,9 +26,10 @@ export default class Partida {
      * Constructor
      * @param {Phaser.Game} juego El juego principal
      */
-    constructor(juego) {    
+    constructor(juego, vistaLateral) {
 
         this.juego = juego;
+        this.vistaLateral = vistaLateral;
 
         // websockets
         this.websocket = null;
@@ -75,6 +77,7 @@ export default class Partida {
     
     reanudar() {
         this.juego.paused = false;
+        this.vistaLateral.reanudar();
     }
 
     // ########################################################################
@@ -119,6 +122,8 @@ export default class Partida {
 
         this.crearControles();
         this.crearCamaras();
+
+        this.cargarDatosVistaLarteral();
     }
 
     update() {
@@ -173,11 +178,7 @@ export default class Partida {
     }
 
     conectarWebsocket() {
-        let host = document.location.host;
-        //let pathname = document.location.pathname;
-    
-        //this.websocket = new WebSocket("ws://" +host  + pathname + "partida/");
-        this.websocket = new WebSocket("ws://" + host  + "/websockets/partida/");
+        this.websocket = new WebSocket('ws://' + Config.URL_BASE + 'partida/');
         this.websocket.partida = this;
     
         this.websocket.onmessage = function(event) {
@@ -542,6 +543,13 @@ export default class Partida {
         this.juego.camera.follow(this.barcoJugador.sprite, Phaser.Camera.FOLLOW_LOCKON);
     }
 
+    cargarDatosVistaLarteral() {
+        this.vistaLateral.barcoJugador = this.barcoJugador;
+        this.vistaLateral.barcoEnemigo = this.barcoEnemigo;
+        this.vistaLateral.visibilidad = this.niebla.visibilidad;
+        this.vistaLateral.datosCargados = true;
+    }
+
     // ########################################################################
     //      FUCIONES AUXILIARES UPDATE
     // ########################################################################
@@ -577,22 +585,13 @@ export default class Partida {
 
     procesarVisibilidadEnemigo() {
         if (!this.barcoEnemigo.hundido) {
-            let separacion = this.separacion(this.barcoJugador, this.barcoEnemigo);
+            let separacion = Geometria.distancia(this.barcoJugador, this.barcoEnemigo);
             if (separacion < this.niebla.visibilidad) {
                 this.barcoEnemigo.mostrar();
             } else {
                 this.barcoEnemigo.ocultar();
             }
         }
-    }
-
-    separacion(barcoA, barcoB) {
-        return Phaser.Math.distance(
-            barcoA.x,
-            barcoA.y,
-            barcoB.x,
-            barcoB.y
-        );
     }
 
     actualizarVidas() {
@@ -632,6 +631,7 @@ export default class Partida {
     updatePausaJugador() {
         if (this.controles.pausa) {
             this.juego.paused = true;
+            this.vistaLateral.pausar()
             this.menuPausa.mostrar();
         }
     }

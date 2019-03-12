@@ -38,7 +38,13 @@ export default class Barco {
     //      GETTERS
     // ########################################################################
 
-    get angulo () { return this.sprite.angle; }
+    get angulo () {
+        let angulo = this.sprite.angle;
+        if (angulo < 0) {
+            angulo = 360 + angulo;
+        }
+        return angulo;
+    }
 
     get canionPopa () { return this._canionPopa; }
 
@@ -63,6 +69,8 @@ export default class Barco {
     get velocidadX () { return this.sprite.body.velocity.x; }
 
     get velocidadY () { return this.sprite.body.velocity.y; }
+
+    get visible () { return this.sprite.visible; }
 
     get x () { return this.sprite.body.x; }
 

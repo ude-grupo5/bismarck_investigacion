@@ -35,6 +35,15 @@ export default class Geometria {
         return punto;
     }
 
+    static distancia(puntoA, puntoB) {
+        return Phaser.Math.distance(
+            puntoA.x,
+            puntoA.y,
+            puntoB.x,
+            puntoB.y
+        );
+    }
+
     static radianesAGrados(radianes) {
         return radianes * (180 / Math.PI);
     }

@@ -1,3 +1,5 @@
+import Config from './config/Config.js';
+
 export default class MenuPausa {
 
     constructor(partida) {
@@ -5,13 +7,13 @@ export default class MenuPausa {
         this._divMenu = document.getElementById('fondo_menu_pausa');
     
         let host = document.location.host;
-        this._websocket = new WebSocket("ws://" + host + '/websockets/guardar/');
+        this._websocket = new WebSocket("ws://" + Config.URL_BASE + 'guardar/');
         this._websocket.onmessage = function(event) {
             let resultado = event.data;
 
-            console.log('resultado guardar: ' + resultado);
-            // TODO: comunicar resultado
-            console.log('TODO: comunicar resultado');
+            alert('Resultado Guardar: ' + resultado);
+            // TODO: comunicar resultado apropiadamente
+            console.log('TODO: comunicar resultado apropiadamente');
         };
 
         this._agregarAccionesBotones();
