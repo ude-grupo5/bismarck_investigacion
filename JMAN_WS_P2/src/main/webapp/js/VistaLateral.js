@@ -51,7 +51,7 @@ export default class VistaLateral {
         this._deshabilitarPerdidaFoco();
         this._crearFondo();
         this._crearOlas();
-        this._crearNubes();
+        //this._crearNubes();
         this._crearBarcoEnemigo();
         this._crearBarcoJugador();
         this._crearLluvia();
@@ -222,8 +222,6 @@ export default class VistaLateral {
         let x = ( this._juego.width / VistaLateral.ANGULO_VISION )
             * anguloRelativo;
         let y = 440 - ( 110 * ( distancia / this._visibilidad ) );
-
-        console.log('x: ' + x + ' y: ' + y);
 
         this._spriteEnemigo.position.x = x;
         this._spriteEnemigo.position.y = y;

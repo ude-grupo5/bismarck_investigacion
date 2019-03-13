@@ -144,6 +144,8 @@ export default class Partida {
         
         this.crearArmas();
 
+        this.crearLluvia();
+
         this.crearNiebla();
 
         this.crearPunteroEnemigo();
@@ -623,6 +625,32 @@ export default class Partida {
     impactoBalaMapa(bodyBala, bodyMapa) {
         let bala = bodyBala.sprite.bala;
         bala.desaparecer();
+    }
+
+    crearLluvia(){
+        let gotas = this.juego.add.bitmapData(15, 50);
+
+        gotas.ctx.rect(0, 5, 5, 20);
+        gotas.ctx.fillStyle = '#9cc9de';
+        gotas.ctx.fill();
+
+        let emisor = this.juego.add.emitter(this.juego.world.centerX, -300, 400);
+
+        emisor.width = this.juego.world.width;
+        emisor.angle = 5;
+
+        emisor.makeParticles(gotas);
+
+        emisor.minParticleScale = 0.1;
+        emisor.maxParticleScale = 0.7;
+
+        emisor.setYSpeed(600, 1000);
+        emisor.setXSpeed(-5, 5);
+
+        emisor.minRotation = 0;
+        emisor.maxRotation = 0;
+
+        emisor.start(false, 1600, 5, 0);
     }
 
     crearControles() {
