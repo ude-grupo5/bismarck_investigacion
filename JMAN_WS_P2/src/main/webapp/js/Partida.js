@@ -88,9 +88,13 @@ export default class Partida {
     // FUNCIONES PUBLICAS
     // ########################################################################
     
-    reanudar() {
+    reanudar(comunicar) {
+        this.menuPausa.ocultar();
         this.juego.paused = false;
         this.vistaLateral.reanudar();
+        if (comunicar) {
+            this.comunicarReanudado();
+        }
     }
 
     // ########################################################################
@@ -126,6 +130,7 @@ export default class Partida {
         this.crearExplosiones();
 
         this.crearSonidos();
+        this.reproducirMusicaFondo();
 
         this.crearMeta();
 
@@ -201,7 +206,7 @@ export default class Partida {
     }
 
     cargarAudio() {
-        this.juego.load.audio('ambiente','audio/ambiente.wav');
+        this.juego.load.audio('musicaFondo','audio/musica_fondo.mp3');
         this.juego.load.audio('barco','audio/Barco.wav');
         this.juego.load.audio('disparo', 'audio/disparo.mp3');
         this.juego.load.audio('impactoBala', 'audio/explosionImpacto.wav');
@@ -215,7 +220,14 @@ export default class Partida {
     
         this.websocket.onmessage = function(event) {
             let estadoPartida = JSON.parse(event.data);
-            this.partida.estadosRecibidos.push(estadoPartida);
+            if (estadoPartida.reanudar) {
+                if (estadoPartida.jugador == this.partida.barcoEnemigo.nombre) {
+                    console.log('reanudar');
+                    this.partida.reanudar(false);
+                }
+            } else {
+                this.partida.estadosRecibidos.push(estadoPartida);
+            }
         };
     }
 
@@ -355,9 +367,14 @@ export default class Partida {
             disparo: this.juego.add.audio('disparo'),
             explosionImpacto: this.juego.add.audio('impactoBala'),
             explosionFinal: this.juego.add.audio('explosionFinal'),
-            impactoAgua: this.juego.add.audio('impactoAgua')
+            impactoAgua: this.juego.add.audio('impactoAgua'),
+            musicaFondo: this.juego.add.audio('musicaFondo')
         }
     }
+
+    reproducirMusicaFondo() {
+        this.sonidos.musicaFondo.loopFull();
+    } 
 
     crearSpriteAnimado(nombreSpriteSheet) {
         let sprite = this.juego.add.sprite(0, 0, nombreSpriteSheet);
@@ -649,11 +666,15 @@ export default class Partida {
     }
 
     procesarEstadoEnemigo(estadoPartida) {
-        this.barcoEnemigo.aplicarEstadoPartida(estadoPartida);
-        if (estadoPartida.enemigoImpactado) {
-            this.barcoJugador.registrarImpacto(estadoPartida.danioImpacto);
+        if (estadoPartida.pausa) {
+            this.pausarJuego(false);
+        } else {
+            this.barcoEnemigo.aplicarEstadoPartida(estadoPartida);
+            if (estadoPartida.enemigoImpactado) {
+                this.barcoJugador.registrarImpacto(estadoPartida.danioImpacto);
+            }
+            this.procesarVisibilidadEnemigo();
         }
-        this.procesarVisibilidadEnemigo();
     }
 
     procesarVisibilidadEnemigo() {
@@ -706,10 +727,33 @@ export default class Partida {
 
     updatePausaJugador() {
         if (this.controles.pausa) {
-            this.juego.paused = true;
-            this.vistaLateral.pausar()
-            this.menuPausa.mostrar();
+            this.pausarJuego(true);
         }
+    }
+
+    pausarJuego(comunicar) {
+        this.juego.paused = true;
+        this.vistaLateral.pausar();
+        this.menuPausa.mostrar();
+        if (comunicar) {
+            this.comunicarPausa();
+        }
+    }
+
+    comunicarPausa() {
+        let pausa = {
+            pausa: true,
+            jugador: this.barcoJugador.nombre
+        };
+        this.enviarJSON(pausa);
+    }
+
+    comunicarReanudado() {
+        let reanudar = {
+            reanudar: true,
+            jugador: this.barcoJugador.nombre
+        };
+        this.enviarJSON(reanudar);
     }
 
     updateVelocidadJugador() {

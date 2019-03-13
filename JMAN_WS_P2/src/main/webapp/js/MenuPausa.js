@@ -6,7 +6,6 @@ export default class MenuPausa {
         this._partida = partida;
         this._divMenu = document.getElementById('fondo_menu_pausa');
     
-        let host = document.location.host;
         this._websocket = new WebSocket("ws://" + Config.URL_BASE + 'guardar/');
         this._websocket.onmessage = function(event) {
             let resultado = event.data;
@@ -56,8 +55,7 @@ export default class MenuPausa {
     }
 
     _accionClickSeguir() {
-        this.ocultar();
-        this._partida.reanudar();
+        this._partida.reanudar(true);
     }
 
     _accionClickSalir() {
