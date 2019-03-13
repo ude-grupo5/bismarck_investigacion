@@ -52,20 +52,20 @@ function getEstadoGuardado() {
 }
 
 $('#buttonNuevaPartida').click(function() {
-	let nombre = document.getElementById("inputNombreNuevo").value;
+	//let nombre = document.getElementById("inputNombreNuevo").value;
 	let b = document.getElementById("selectBarcoNuevo");
 	let barco = b.options[b.selectedIndex].value;
 
 	if (isEmpty(barco)) {
 		mostrarError("Debe seleccionar un barco Capit&aacute;n");
-	} else if (isEmpty(nombre)) {
+	}/* else if (isEmpty(nombre)) {
 		mostrarError("Debe ingresar su nombre Capit&aacute;n");
-	} else {
+	}*/ else {
 		parametrosSala = new Object();
 
 		parametrosSala.barcoLocal = barco;
 		parametrosSala.tipoPartida = "NUEVA";
-		parametrosSala.nombreLocal = nombre;
+		//parametrosSala.nombreLocal = nombre;
 
 		sessionStorage.parametrosSala = JSON.stringify(parametrosSala);
 
