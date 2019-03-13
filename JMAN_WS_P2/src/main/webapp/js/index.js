@@ -63,6 +63,8 @@ $('#buttonContinuar').click(function() {
 	if (isEmpty(barco)) {
 		mostrarError("Identif&iacute;quese Capit&aacute;n");
 	} else {
+		parametrosSala = new Object();
+		
 		parametrosSala.barcoLocal = barco;
 		parametrosSala.tipoPartida = "GUARDADA";
 		parametrosSala.estadoGuardado = getEstadoGuardado();

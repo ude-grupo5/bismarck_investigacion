@@ -1,4 +1,5 @@
 import Config from './config/Config.js';
+import EstadoGuardado from './EstadoGuardado.js';
 
 export default class MenuPausa {
 
@@ -37,7 +38,7 @@ export default class MenuPausa {
     _agregarAccionesBotones() {
         let botonGuardar = document.getElementById('boton_guardar');
         let botonSeguir = document.getElementById('boton_seguir');
-        let botonSalir = document.getElementById('boton_salir');
+        let botonSalir = document.getElementById('boton_salir_pausa');
 
         botonGuardar.addEventListener('click', () => {
             this._accionClickGuardar();
@@ -63,7 +64,11 @@ export default class MenuPausa {
     }
 
     _guardar() {
-        let estadoGuardadoStr =  JSON.stringify(this._partida.estadoGuardado);
+        let bismarck = this._partida.bismarck;
+        let hood = this._partida.hood;
+        let estadoGuardado = new EstadoGuardado(bismarck, hood);
+        
+        let estadoGuardadoStr =  JSON.stringify(estadoGuardado);
         this._websocket.send(estadoGuardadoStr);
     }
 }

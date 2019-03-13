@@ -68,7 +68,7 @@ export default class MenuFinPartida {
     }
 
     _agregarAccionSalir() {
-        let botonSalir = document.getElementById('boton_salir');
+        let botonSalir = document.getElementById('boton_salir_fin');
 
         botonSalir.addEventListener('click', () => {
             this._accionClickSalir();

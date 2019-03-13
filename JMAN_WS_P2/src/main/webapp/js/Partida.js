@@ -1,6 +1,5 @@
 import Controles from './Controles.js';
 import EstadoPartida from './EstadoPartida.js';
-import EstadoGuardado from './EstadoGuardado.js';
 import Barco from './Barco.js';
 import Bala from './Bala.js';
 import Canion from './Canion.js';
@@ -151,6 +150,10 @@ export default class Partida {
         this.crearCamaras();
 
         this.cargarDatosVistaLarteral();
+
+        if (this.tipoPartida() == 'GUARDADA') {
+            this.procesarEstadoGuardado();
+        }
     }
 
     update() {
@@ -162,8 +165,6 @@ export default class Partida {
         this.enviarEstadoPartida();
         this.actualizarVidas();
         this.actualizarMarcador();
-        
-        this.estadoGuardado = new EstadoGuardado();
     }
 
     // ########################################################################
@@ -522,7 +523,7 @@ export default class Partida {
     }
 
     asignarBarcos() {
-        let barcoElegido = this.obtenerBarcoJugador();
+        let barcoElegido = this.barcoElegido();
         if (barcoElegido == "Bismarck") {
             this.barcoJugador = this.bismarck;
             this.barcoEnemigo = this.hood;
@@ -533,9 +534,19 @@ export default class Partida {
         this.barcoEnemigo.ocultar();
     }
 
-    obtenerBarcoJugador() {
+    barcoElegido() {
         let parametrosSala = JSON.parse(sessionStorage.parametrosSala);
         return parametrosSala.barcoLocal;
+    }
+
+    tipoPartida() {
+        let parametrosSala = JSON.parse(sessionStorage.parametrosSala);
+        return parametrosSala.tipoPartida;
+    }
+
+    estadoGuardado() {
+        let parametrosSala = JSON.parse(sessionStorage.parametrosSala);
+        return parametrosSala.estadoGuardado;
     }
 
     crearPunteroEnemigo() {
@@ -613,6 +624,9 @@ export default class Partida {
 
         if (barco.nombre == this.barcoEnemigo.nombre) {
             this.barcoEnemigo.registrarImpacto(bala.danio());
+        } else {
+            this.juego.camera.shake(0.05, 500);
+            this.vistaLateral._juego.camera.shake(0.05, 500);
         }
     }
     
@@ -660,6 +674,12 @@ export default class Partida {
         this.vistaLateral.barcoEnemigo = this.barcoEnemigo;
         this.vistaLateral.visibilidad = this.niebla.visibilidad;
         this.vistaLateral.datosCargados = true;
+    }
+
+    procesarEstadoGuardado() {
+        let estadoGuardado = this.estadoGuardado();
+        this.bismarck.aplicarEstadoGuardado(estadoGuardado.estadoBismarck);
+        this.hood.aplicarEstadoGuardado(estadoGuardado.estadoHood);
     }
 
     // ########################################################################
@@ -712,6 +732,10 @@ export default class Partida {
 
     actualizarVidas() {
         this.barcoJugador.actualizarVida();
+        if (this.barcoJugador.vida <= 25) {
+            this.juego.camera.flash(0xFF4F29, 1500);
+            this.vistaLateral._juego.camera.flash(0xFF4F29, 1500);
+        }
         this.barcoEnemigo.actualizarVida();
     }
 
@@ -744,7 +768,7 @@ export default class Partida {
         } else if (this.barcoEnemigo.hundido) {
             resultado = MenuFinPartida.VICTORIA;
         } else if (this.marcador.bismarckMeta) {
-            if (this.obtenerBarcoJugador() == "Bismarck") {
+            if (this.barcoElegido() == "Bismarck") {
                 resultado = MenuFinPartida.VICTORIA;
             } else {
                 resultado = MenuFinPartida.DERROTA;

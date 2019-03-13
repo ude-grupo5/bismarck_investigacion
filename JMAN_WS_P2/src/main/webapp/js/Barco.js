@@ -102,16 +102,23 @@ export default class Barco {
         }
     }
 
-    aplicarEstadoPartida(estadoPartida) {
-        this.sprite.body.x = estadoPartida.x;
-        this.sprite.body.y = estadoPartida.y;
-        this.sprite.body.angle = estadoPartida.angulo;
-        this.sprite.body.velocity.x = estadoPartida.velocidadX;
-        this.sprite.body.velocity.y = estadoPartida.velocidadY;
-        if (estadoPartida.fuegoProa) {
+    aplicarEstadoGuardado(estado) {
+        this.sprite.body.angle = estado.angulo;
+        this.vida = estado.vida;
+        this.sprite.body.x = estado.x;
+        this.sprite.body.y = estado.y;
+    }
+
+    aplicarEstadoPartida(estado) {
+        this.sprite.body.x = estado.x;
+        this.sprite.body.y = estado.y;
+        this.sprite.body.angle = estado.angulo;
+        this.sprite.body.velocity.x = estado.velocidadX;
+        this.sprite.body.velocity.y = estado.velocidadY;
+        if (estado.fuegoProa) {
             this.canionProa.disparar();
         }
-        if (estadoPartida.fuegoPopa) {
+        if (estado.fuegoPopa) {
             this.canionPopa.disparar();
         }
     }
