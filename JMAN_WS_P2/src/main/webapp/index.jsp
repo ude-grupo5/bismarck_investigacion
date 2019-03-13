@@ -110,7 +110,7 @@
 									<select class="custom-select" id="selectBarcoContinuar">
 										<option value="" selected="">Indetif&iacute;quese
 											Capit&aacute;n</option>
-										<option value="Bizmarck">Bizmarck</option>
+										<option value="Bismarck">Bismarck</option>
 										<option value="Hood">Hood</option>
 									</select>
 								</div>
