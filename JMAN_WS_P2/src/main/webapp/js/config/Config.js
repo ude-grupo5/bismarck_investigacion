@@ -1,6 +1,6 @@
 function _urlBase () {
     let hostname = document.location.host;
-    let pathname = '/websockets/';
+    let pathname = '/caza-bismarck/';
 
     return (hostname + pathname);
 }

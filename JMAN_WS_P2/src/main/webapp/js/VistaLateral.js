@@ -262,8 +262,13 @@ export default class VistaLateral {
         let anguloEntreBarcos = Geometria.anguloEntrePuntos(
                 this._barcoJugador, this._barcoEnemigo);
         let anguloRelativo = ( anguloEntreBarcos
-            + ( VistaLateral.ANGULO_VISION / 2 ) - anguloBarcoJugador );
-        return  anguloRelativo % 360;
+            + ( VistaLateral.ANGULO_VISION / 2 ) - anguloBarcoJugador ) % 360;
+        
+        if (anguloRelativo < 0) {
+            anguloRelativo += 360;
+        }
+
+        return  anguloRelativo;
     }
 
     /**
@@ -275,7 +280,11 @@ export default class VistaLateral {
     _anguloRelativoBarcoEnemigo() {
         let anguloEnemigo = this._barcoEnemigo.angulo;
         let anguloJugador = this._barcoJugador.angulo;
+        let anguloRelativo = (anguloEnemigo - anguloJugador) % 360;
+        if (anguloRelativo < 0) {
+            anguloRelativo += 360;
+        }
         
-        return (anguloEnemigo + anguloJugador) % 360;
+        return anguloRelativo;
     }
 }
