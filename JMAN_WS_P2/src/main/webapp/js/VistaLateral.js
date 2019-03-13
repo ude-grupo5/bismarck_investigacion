@@ -78,6 +78,9 @@ export default class VistaLateral {
             } else {
                 this._ocultarEnemigo();
             }
+            if (!this._barcoJugador.visible) {
+                this._spriteJugador.visible = false;
+            }
         }
     }
 
@@ -173,13 +176,16 @@ export default class VistaLateral {
 
     _crearBarcoJugador() {
         let barcoElegido = this._barcoElegido();
+        let sprite = null;
         if (barcoElegido == "Bismarck") {
-            let sprite = this._juego.add.sprite(90, 302,'proaJugador');
+            sprite = this._juego.add.sprite(90, 302,'proaJugador');
             sprite.scale.setTo(1.0,1.0);
         } else if (barcoElegido == "Hood") {
-            let sprite = this._juego.add.sprite(90, 332,'proaJugador');
+            sprite = this._juego.add.sprite(90, 332,'proaJugador');
             sprite.scale.setTo(0.9,0.9);
         }
+
+        this._spriteJugador = sprite;
     }
 
     _crearLluvia(){
