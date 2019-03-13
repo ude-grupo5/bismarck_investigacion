@@ -7,6 +7,7 @@ import Canion from './Canion.js';
 import Geometria from './util/Geometria.js';
 import MenuPausa from './MenuPausa.js';
 import Config from './config/Config.js';
+import MenuFinPartida from './MenuFinPartida.js';
 
 export default class Partida {
 
@@ -66,7 +67,7 @@ export default class Partida {
         this.niebla = null;
 
         // marcador
-        this.marcador = null;
+        this.marcador = {};
 
         // animaciones
         this.animaciones = null;
@@ -74,8 +75,9 @@ export default class Partida {
         // sonidos
         this.sonidos = null;
 
-        // menu pausa
+        // menuseses
         this.menuPausa = null;
+        this.menuFinPartida = null;
 
         // controles
         this.controles = null;
@@ -95,14 +97,6 @@ export default class Partida {
         if (comunicar) {
             this.comunicarReanudado();
         }
-    }
-
-    // ########################################################################
-    // FUNCIONES VICTORIA
-    // ########################################################################
-    
-    victoriaJugadorPorMeta() {
-        alert('Has ganado');
     }
 
     // ########################################################################
@@ -134,9 +128,7 @@ export default class Partida {
 
         this.crearMeta();
 
-        if (this.obtenerBarcoJugador() == "Bismarck") {
-            this.crearTriggerBismarck();
-        }
+        this.crearTriggerBismarck();
         
         this.crearBarcos();
         this.setearColisionBarcos();
@@ -153,6 +145,7 @@ export default class Partida {
         this.crearMarcador();
 
         this.crearMenuPausa();
+        this.crearMenuFinPartida();
 
         this.crearControles();
         this.crearCamaras();
@@ -306,8 +299,6 @@ export default class Partida {
 
     crearMarcador() {
 
-        this.marcador = {};
-
         this.crearVidasMarcador();
 
         // estado de la partida
@@ -354,6 +345,10 @@ export default class Partida {
 
     crearMenuPausa() {
         this.menuPausa = new MenuPausa(this);
+    }
+
+    crearMenuFinPartida() {
+        this.menuFinPartida = new MenuFinPartida();
     }
 
     crearExplosiones() {
@@ -405,24 +400,23 @@ export default class Partida {
         meta.body.static = true;
 
         meta.body.meta = true;
-        
-        //meta.body.setCollisionGroup(this.gruposColision.meta);
     }
 
     crearTriggerBismarck() {
         let trigger = this.juego.add.sprite(0, 0, null);
         this.juego.physics.p2.enable(trigger, Partida.VER_CUERPOS);
         trigger.body.setCircle(10);
-        //trigger.body.setCollisionGroup(this.gruposColision.triggerBismarck);
 
         trigger.body.onBeginContact.add(this.triggerBismarckBeginContact, this);
         
         this.triggerBismarck = trigger;
+        this.marcador.bismarckMeta = false;
     }
 
     triggerBismarckBeginContact(body/*, bodyB, shapeA, shapeB, equation*/) {
         if(body && body.meta) {
-            this.victoriaJugadorPorMeta();
+            this.marcador.bismarckMeta = true;
+            this.comunicarFinPartida();
         }
     }
 
@@ -726,21 +720,51 @@ export default class Partida {
         this.marcador.vidaBismarck.animations.play(vidaBismarck, 2, true);
         if (!this.marcador.bismarckHundido && this.bismarck.hundido) {
             this.marcador.bismarckHundido = true;
-            this.comunicarHundimiento(this.bismarck);
+            this.comunicarFinPartida();
         }
 
         let vidaHood = this.hood.vida;
         this.marcador.vidaHood.animations.play(vidaHood, 2, true);
         if (!this.marcador.hoodHundido && this.hood.hundido) {
             this.marcador.hoodHundido = true;
-            this.comunicarHundimiento(this.hood);
+            this.comunicarFinPartida();
         }
     }
 
-    comunicarHundimiento(barco) {
-        let estadoPartida = this.marcador.estadoPartida;
-        estadoPartida.text = " El " + barco.nombre + " ha sido hundido";
-        estadoPartida.visible = true;
+    comunicarFinPartida() {
+        let resultado = this.resultadoFinPartida();
+        let motivo = this.motivoFinPartida();
+        this.menuFinPartida.comunicarFin(resultado, motivo);
+    }
+
+    resultadoFinPartida() {
+        let resultado;
+        if (this.barcoJugador.hundido) {
+            resultado = MenuFinPartida.DERROTA;
+        } else if (this.barcoEnemigo.hundido) {
+            resultado = MenuFinPartida.VICTORIA;
+        } else if (this.marcador.bismarckMeta) {
+            if (this.obtenerBarcoJugador() == "Bismarck") {
+                resultado = MenuFinPartida.VICTORIA;
+            } else {
+                resultado = MenuFinPartida.DERROTA;
+            }
+        }
+
+        return resultado;
+    }
+
+    motivoFinPartida() {
+        let motivo;
+        if (this.bismarck.hundido) {
+            motivo = MenuFinPartida.BISMARCK_HUNDIDO;
+        } else if (this.hood.hundido) {
+            motivo = MenuFinPartida.HOOD_HUNDIDO;
+        } else if (this.marcador.bismarckMeta) {
+            motivo = MenuFinPartida.BISMARCK_ESCAPADO;
+        }
+
+        return motivo;
     }
 
     updateAccionesJugador() {
@@ -748,9 +772,7 @@ export default class Partida {
         this.updateVelocidadJugador();
         this.updateRotacionJugador();
         this.barcoJugador.mover();
-        if (this.obtenerBarcoJugador() == 'Bismarck') {
-            this.updatePosicionTriggerBismarck();
-        }
+        this.updatePosicionTriggerBismarck();
     }
 
     updatePausaJugador() {

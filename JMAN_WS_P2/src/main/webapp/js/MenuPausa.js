@@ -59,8 +59,7 @@ export default class MenuPausa {
     }
 
     _accionClickSalir() {
-        // TODO: accionClickSalir
-        console.log('TODO: accionClickSalir');
+        window.location.replace('http://' + Config.URL_BASE);
     }
 
     _guardar() {
