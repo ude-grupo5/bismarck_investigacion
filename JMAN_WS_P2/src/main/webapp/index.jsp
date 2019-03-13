@@ -4,7 +4,6 @@
 <%
 	String jsonEstadoPartida = "";
 	if (request.getAttribute("estadoPartida") != null) {
-
 		jsonEstadoPartida = (String) request.getAttribute("estadoPartida");
 	}
 %>
@@ -52,16 +51,6 @@
 	</audio>
 	<div class="container-fluid">
 		<div class="row">
-			<div class="col"></div>
-			<div class="col">
-				<ul class="nav justify-content-center">
-					<li class="nav-item"><a class="nav-link active" onmouseenter="playAudio()" target="popup" onclick="window.open('ayuda.html','name','width=820,height=620')">Ayuda</a>
-					</li>
-				</ul>
-			</div>
-			<div class="col"></div>
-		</div>
-		<div class="row">
 			<div class="col">
 				<br>
 			</div>
@@ -71,6 +60,8 @@
 				<img src="media/logo.png" height="250" width="350">
 			</div>
 			<div class="col">
+				<button type="button" class="btn btn-danger" onmouseenter="playAudio()" target="popup" onclick="window.open('ayuda.html','name','width=820,height=620')">Ayuda</button>
+				<br>
 				<div class="card text-center text-white bg-dark">
 					<div class="card-header">Nueva Partida</div>
 					<div class="card-body">
