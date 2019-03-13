@@ -14,15 +14,15 @@ export default class Partida {
     static get ESCALADO_BALA_BISMARCK () { return 1; }
     static get VELOCIDAD_BISMARCK () { return 100; }
     static get VIDA_BISMARCK () { return 200; }
-    static get X_INICIAL_BISMARCK () { return 650; }
-    static get Y_INICIAL_BISMARCK () { return 400; }
+    static get X_INICIAL_BISMARCK () { return 2400; }
+    static get Y_INICIAL_BISMARCK () { return 3000; }
     
     static get ESCALADO_HOOD () { return 0.15; }
     static get ESCALADO_BALA_HOOD () { return 1; }
     static get VELOCIDAD_HOOD () { return 100; }
     static get VIDA_HOOD () { return 100; }
-    static get X_INICIAL_HOOD () { return 900; }
-    static get Y_INICIAL_HOOD () { return 900; }
+    static get X_INICIAL_HOOD () { return 400; }
+    static get Y_INICIAL_HOOD () { return 1200; }
     
     static get X_META () { return 570; }
     static get Y_META () { return 340; }
@@ -321,6 +321,12 @@ export default class Partida {
     }
 
     crearVidasMarcador() {
+        let xBismarck = 490;
+        let xHood = 10;
+        if (this.barcoElegido() == 'Hood') {
+            xBismarck = 10;
+            xHood = 490;
+        }
     
         let vidaBismarck = this.juego.add.sprite(10, 1, 'vidaBismarck');
         
@@ -330,7 +336,7 @@ export default class Partida {
         }
 
         vidaBismarck.fixedToCamera = true;
-        vidaBismarck.cameraOffset.setTo(10, 10);
+        vidaBismarck.cameraOffset.setTo(xBismarck, 10);
 
         let vidaHood = this.juego.add.sprite(10, 60, 'vidaHood');
         
@@ -340,7 +346,7 @@ export default class Partida {
         }
 
         vidaHood.fixedToCamera = true;
-        vidaHood.cameraOffset.setTo(10, 80);
+        vidaHood.cameraOffset.setTo(xHood, 10);
 
         this.marcador.vidaBismarck = vidaBismarck;
         this.marcador.bismarckHundido = false;
