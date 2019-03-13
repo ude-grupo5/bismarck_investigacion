@@ -57,7 +57,8 @@
 			<div class="col"></div>
 			<div class="col">
 				<ul class="nav justify-content-center">
-					<li class="nav-item"><a class="nav-link active" onmouseenter="playAudio()" href="ayuda.html">Ayuda</a></li>
+					<li class="nav-item"><a class="nav-link active" onmouseenter="playAudio()" target="popup" onclick="window.open('ayuda.html','name','width=820,height=620')">Ayuda</a>
+					</li>
 				</ul>
 			</div>
 			<div class="col"></div>
