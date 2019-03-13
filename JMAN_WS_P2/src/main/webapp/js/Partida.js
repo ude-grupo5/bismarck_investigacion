@@ -321,11 +321,11 @@ export default class Partida {
     }
 
     crearVidasMarcador() {
-        let xBismarck = 490;
-        let xHood = 10;
+        let xBismarck = 10;
+        let xHood = 490;
         if (this.barcoElegido() == 'Hood') {
-            xBismarck = 10;
-            xHood = 490;
+            xBismarck = 490;
+            xHood = 10;
         }
     
         let vidaBismarck = this.juego.add.sprite(10, 1, 'vidaBismarck');
