@@ -14,15 +14,15 @@ export default class Partida {
     static get ESCALADO_BALA_BISMARCK () { return 1; }
     static get VELOCIDAD_BISMARCK () { return 100; }
     static get VIDA_BISMARCK () { return 200; }
-    static get X_INICIAL_BISMARCK () { return 650; }
-    static get Y_INICIAL_BISMARCK () { return 400; }
+    static get X_INICIAL_BISMARCK () { return 2400; }
+    static get Y_INICIAL_BISMARCK () { return 3000; }
     
     static get ESCALADO_HOOD () { return 0.15; }
     static get ESCALADO_BALA_HOOD () { return 1; }
     static get VELOCIDAD_HOOD () { return 100; }
     static get VIDA_HOOD () { return 100; }
-    static get X_INICIAL_HOOD () { return 900; }
-    static get Y_INICIAL_HOOD () { return 900; }
+    static get X_INICIAL_HOOD () { return 400; }
+    static get Y_INICIAL_HOOD () { return 1200; }
     
     static get X_META () { return 570; }
     static get Y_META () { return 340; }
@@ -59,8 +59,9 @@ export default class Partida {
         // triggers
         this.triggerBismarck = null;
 
-        // puntero
+        // punteros
         this.punteroEnemigo = null;
+        this.punteroMeta = null;
 
         // niebla
         this.niebla = null;
@@ -139,6 +140,7 @@ export default class Partida {
 
         this.crearNiebla();
 
+        this.crearPunteroMeta();
         this.crearPunteroEnemigo();
 
         this.crearMarcador();
@@ -160,6 +162,7 @@ export default class Partida {
         this.procesarEstadosRecibidos();
         this.updateAccionesJugador();
         this.updatePunteroEnemigo();
+        this.updatePunteroMeta();
         this.updateDisparos();
         this.updateNiebla();
         this.enviarEstadoPartida();
@@ -182,6 +185,8 @@ export default class Partida {
         this.juego.load.image('bismarck','sprites/Modelo_bismarck.png');
         this.juego.load.image('hood','sprites/Modelo_hood.png');
         this.juego.load.image('punteroRojo','sprites/puntero_rojo.png');
+        this.juego.load.image('punteroMeta','sprites/puntero_meta.png');
+        this.juego.load.image('punteroAmarillo','sprites/puntero_amarillo.png');
     }
 
     cargarSpritesheets() {
@@ -316,6 +321,12 @@ export default class Partida {
     }
 
     crearVidasMarcador() {
+        let xBismarck = 10;
+        let xHood = 490;
+        if (this.barcoElegido() == 'Hood') {
+            xBismarck = 490;
+            xHood = 10;
+        }
     
         let vidaBismarck = this.juego.add.sprite(10, 1, 'vidaBismarck');
         
@@ -325,7 +336,7 @@ export default class Partida {
         }
 
         vidaBismarck.fixedToCamera = true;
-        vidaBismarck.cameraOffset.setTo(10, 10);
+        vidaBismarck.cameraOffset.setTo(xBismarck, 10);
 
         let vidaHood = this.juego.add.sprite(10, 60, 'vidaHood');
         
@@ -335,7 +346,7 @@ export default class Partida {
         }
 
         vidaHood.fixedToCamera = true;
-        vidaHood.cameraOffset.setTo(10, 80);
+        vidaHood.cameraOffset.setTo(xHood, 10);
 
         this.marcador.vidaBismarck = vidaBismarck;
         this.marcador.bismarckHundido = false;
@@ -401,6 +412,8 @@ export default class Partida {
         meta.body.static = true;
 
         meta.body.meta = true;
+
+        this.meta = meta;
     }
 
     crearTriggerBismarck() {
@@ -547,6 +560,18 @@ export default class Partida {
     estadoGuardado() {
         let parametrosSala = JSON.parse(sessionStorage.parametrosSala);
         return parametrosSala.estadoGuardado;
+    }
+    
+    crearPunteroMeta() {
+        let puntero = null;
+        if (this.barcoElegido() == 'Bismarck') {
+            puntero = 'punteroMeta';
+        } else  {
+            puntero = 'punteroAmarillo';
+        }
+        this.punteroMeta = this.juego.add.sprite(0, 0, puntero);
+        this.punteroMeta.scale.setTo(0.8, 0.8);
+        this.punteroMeta.anchor.setTo(0.5, 0.5);
     }
 
     crearPunteroEnemigo() {
@@ -858,28 +883,42 @@ export default class Partida {
 
     updatePunteroEnemigo() {
         if (this.barcoEnemigo.oculto && !this.barcoEnemigo.hundido) {
-            this.reposicionarPuntero(this.barcoEnemigo);
-            this.mostrarPuntero();
+            this.reposicionarPuntero(this.barcoEnemigo, this.punteroEnemigo);
+            this.mostrarPuntero(this.punteroEnemigo);
         } else {
-            this.ocultarPuntero();
+            this.ocultarPuntero(this.punteroEnemigo);
         }
     }
 
-    reposicionarPuntero(puntoObjetivo) {
+    updatePunteroMeta() {
+        if (this.metaVisible()) {
+            this.ocultarPuntero(this.punteroMeta);
+        } else {
+            this.reposicionarPuntero(this.meta, this.punteroMeta);
+            this.mostrarPuntero(this.punteroMeta);
+        }
+    }
+
+    metaVisible() {
+        let separacion = Geometria.distancia(this.barcoJugador, this.meta);
+        return separacion < this.niebla.radio;
+    }
+
+    reposicionarPuntero(puntoObjetivo, puntero) {
         let distancia = this.niebla.radio - this.niebla.franja;
         let angulo = Geometria.anguloEntrePuntos(this.barcoJugador, puntoObjetivo);
         let punto = Geometria.obtenerPunto(this.barcoJugador, distancia, angulo);
-        this.punteroEnemigo.position.x = punto.x;
-        this.punteroEnemigo.position.y = punto.y;
-        this.punteroEnemigo.angle = angulo;
+        puntero.position.x = punto.x;
+        puntero.position.y = punto.y;
+        puntero.angle = angulo;
     }
 
-    mostrarPuntero() {
-        this.punteroEnemigo.visible = true;
+    mostrarPuntero(puntero) {
+        puntero.visible = true;
     }
 
-    ocultarPuntero() {
-        this.punteroEnemigo.visible = false;
+    ocultarPuntero(puntero) {
+        puntero.visible = false;
     }
 
     updateDisparos() {
