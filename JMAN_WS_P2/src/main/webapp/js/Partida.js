@@ -622,6 +622,8 @@ export default class Partida {
         bala.explotar();
         bodyBarco.setZeroRotation();
 
+        this.vistaLateral.impactarEnemigo();
+
         if (barco.nombre == this.barcoEnemigo.nombre) {
             this.barcoEnemigo.registrarImpacto(bala.danio());
         } else {

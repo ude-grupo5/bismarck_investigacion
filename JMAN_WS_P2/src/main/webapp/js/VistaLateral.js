@@ -12,6 +12,8 @@ export default class VistaLateral {
 
         this._juego = juegoVistaLateral;
         this.partidaCreada = false;
+
+        this._explosionImpacto = null;
     }
 
     // ########################################################################
@@ -37,6 +39,13 @@ export default class VistaLateral {
     reanudar() {
         this._juego.paused = false;
     }
+
+    impactarEnemigo() {
+        this._explosionImpacto.reset(this._spriteEnemigo.x, this._spriteEnemigo.y - 10);
+        this._explosionImpacto.scale.x = this._spriteEnemigo.scale.x + 0.2;
+        this._explosionImpacto.scale.y = this._spriteEnemigo.scale.y + 0.2;
+        this._explosionImpacto.play('explosionImpacto', 30, false, true);
+    }
     
     // ########################################################################
     // FUNCIONES ESTANDAR DE PHASER
@@ -45,6 +54,7 @@ export default class VistaLateral {
     preload() {
         this._precargarEscenario();
         this._precargarBarcos();
+        this._precargarExplosiones();
     }
 
     create() {
@@ -53,6 +63,7 @@ export default class VistaLateral {
         this._crearOlas();
         //this._crearNubes();
         this._crearBarcoEnemigo();
+        this._crearExplosiones();
         this._crearBarcoJugador();
         this._crearLluvia();
     }
@@ -97,6 +108,10 @@ export default class VistaLateral {
                 'sprites/vista_lateral/bismarck_texture_atlas.json'
             );
         }
+    }
+
+    _precargarExplosiones() {
+        this._juego.load.spritesheet('explosionImpacto', 'sprites/explosion1.png', 64, 64);
     }
 
     // ########################################################################
@@ -145,6 +160,15 @@ export default class VistaLateral {
     _crearBarcoEnemigo(){
         this._spriteEnemigo = this._juego.add.sprite(225, 440, 'enemigo');
         this._spriteEnemigo.anchor.setTo(0.5, 1);
+    }
+
+    _crearExplosiones() {
+        let sprite = this._juego.add.sprite(-20, -20, 'explosionImpacto');
+        sprite.anchor.x = 0.5;
+        sprite.anchor.y = 0.5;
+        sprite.animations.add('explosionImpacto');
+
+        this._explosionImpacto = sprite;
     }
 
     _crearBarcoJugador() {
