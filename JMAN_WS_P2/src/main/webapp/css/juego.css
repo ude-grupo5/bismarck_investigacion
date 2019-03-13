@@ -1,15 +1,7 @@
-div#juego
-{
-  float: left;
-  width: 800px;
-  height: 600px;
-}
-
-div#lateral
-{
-  float: left;
-  width: 400px;
-  height: 450px;
+.borde-juego {
+  border-style: inset;
+  border-width: 7px;
+  border-color: lightgray;  
 }
 
 .center-div {

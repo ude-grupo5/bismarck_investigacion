@@ -1,47 +1,71 @@
 <html>
-    <head>
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/juego.css">
-        <meta charset="utf-8" />
-        <title>La caza del Bismarck</title>
-        <script type="text/javascript" src="js/lib/phaser.min.js"></script>
-        <script type="module" src="js/Main.js"></script>
-    </head>
-    <body>
-        <div id="contenedor_juego" class="center-div">
-            <div id="juego"></div>
-            <div id="lateral"></div>
-        </div>
-        <div id="fondo_menu_pausa">
-            <div id="menu_pausa_main_div" class="center-div">
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <fieldset>
-                            <button id="boton_guardar" type="button" class="btn btn-primary btn-lg btn-block">Guardar</button>
-                            <button id="boton_seguir" type="button" class="btn btn-primary btn-lg btn-block">Seguir</button>
-                            <button id="boton_salir" type="button" class="btn btn-primary btn-lg btn-block">Salir</button>
-                        </fieldset>
+
+<head>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/juego.css">
+    <meta charset="utf-8" />
+    <title>La caza del Bismarck</title>
+    <script type="text/javascript" src="js/lib/phaser.min.js"></script>
+    <script type="module" src="js/Main.js"></script>
+</head>
+
+<body>
+    <div id="contenedor_juego" class="center-div">
+        <div class="row">
+            <div class="col">
+                <div id="juego" class="borde-juego"></div>
+            </div>
+            <div class="col">
+                <div class="container">
+                    <div class="row">
+                        <div class="col">
+                            <div id="lateral" class="borde-juego"></div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="text-center" class="borde-juego">
+                                <img src="media/logo.png" alt="..." width="350" height="150">
+                            </div>
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="fondo_fin_partida">
-            <div id="fin_partida_main_div" class="center-div">
-                <div class="div_img_fin_partida">
-                    <img id="fin_partida_resultado" src="sprites/fin_partida/hasGanado.png">
-                </div>
-                <div class="div_img_fin_partida">
-                    <img id="fin_partida_motivo" src="sprites/fin_partida/bismarckHundido.png">
-                </div>
-                <div class="div_img_fin_partida"></div>
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <fieldset>
-                            <button id="boton_salir" type="button" class="btn btn-primary btn-lg btn-block">Salir</button>
-                        </fieldset>
-                    </div>
+    </div>
+    <div id="fondo_menu_pausa">
+        <div id="menu_pausa_main_div" class="center-div">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <fieldset>
+                        <button id="boton_guardar" type="button" class="btn btn-primary btn-lg btn-block">Guardar</button>
+                        <button id="boton_seguir" type="button" class="btn btn-primary btn-lg btn-block">Seguir</button>
+                        <button id="boton_salir" type="button" class="btn btn-primary btn-lg btn-block">Salir</button>
+                    </fieldset>
                 </div>
             </div>
         </div>
-    </body>
+    </div>
+    <div id="fondo_fin_partida">
+        <div id="fin_partida_main_div" class="center-div">
+            <div class="div_img_fin_partida">
+                <img id="fin_partida_resultado" src="sprites/fin_partida/hasGanado.png">
+            </div>
+            <div class="div_img_fin_partida">
+                <img id="fin_partida_motivo" src="sprites/fin_partida/bismarckHundido.png">
+            </div>
+            <div class="div_img_fin_partida"></div>
+            <div class="card mb-3">
+                <div class="card-body">
+                    <fieldset>
+                        <button id="boton_salir" type="button" class="btn btn-primary btn-lg btn-block">Salir</button>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
 </html>
