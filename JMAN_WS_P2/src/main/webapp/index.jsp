@@ -54,13 +54,16 @@
 	<video poster="media/fondoIndex.jpg" playsinline autoplay muted loop>
 		<source src="media/videoplayback.mp4" type="video/mp4">
 	</video>
+	<audio autoplay>
+		<source src="media/09 Sons of War.mp3" type="audio/mpeg">
+	</audio>
 	<div class="container-fluid">
 		<div class="row">
 			<div class="col"></div>
 			<div class="col">
 				<ul class="nav justify-content-center">
-					<li class="nav-item"><a class="nav-link active" href="#">Ayuda</a>
-					</li>
+					<li class="nav-item"><a class="nav-link active"
+						onmouseenter="playAudio()" href="#">Ayuda</a></li>
 				</ul>
 			</div>
 			<div class="col"></div>
@@ -81,12 +84,9 @@
 					<div class="card-header">Nueva Partida</div>
 					<div class="card-body">
 						<div class="form-group">
-							<input type="text" class="form-control" id="inputNombreNuevo"
-								placeholder="Ingrese su nombre Capit&aacute;n">
-						</div>
-						<div class="form-group">
 							<select class="form-control" id="selectBarcoNuevo">
-								<option value="" selected="">Seleccione su barco</option>
+								<option value="" selected="">Seleccione su barco
+									Capit&aacute;n</option>
 								<option value="Bismarck">Bismarck</option>
 								<option value="Hood">Hood</option>
 							</select>
@@ -113,17 +113,12 @@
 						<form>
 							<div class="form-group">
 								<div class="form-group">
-									<select class="custom-select" onchange="cambiarBarco()"
-										id="selectBarcoContinuar">
+									<select class="custom-select" id="selectBarcoContinuar">
 										<option value="" selected="">Indetif&iacute;quese
 											Capit&aacute;n</option>
-										<option value="Bizmarck"></option>
-										<option value="Hood"></option>
+										<option value="Bizmarck">Bizmarck</option>
+										<option value="Hood">Hood</option>
 									</select>
-								</div>
-								<div class="form-group">
-									<input type="text" class="form-control" readonly
-										id="inputNombreContinuar">
 								</div>
 							</div>
 						</form>
@@ -154,6 +149,9 @@
 		</div>
 
 	</div>
+	<audio id="audioID">
+		<source src="media/callhelp.wav" type="audio/wav">
+	</audio>
 	<script type="text/javascript" src="js/lib/jquery-3.3.1.min.js"></script>
 	<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
 	<script type="text/javascript" src="js/index.js"></script>
