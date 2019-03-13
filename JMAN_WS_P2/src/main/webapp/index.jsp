@@ -44,8 +44,6 @@
 		</div>
 	</div>
 
-
-
 	<video poster="media/fondoIndex.jpg" playsinline autoplay muted loop>
 		<source src="media/videoplayback.mp4" type="video/mp4">
 	</video>
@@ -69,13 +67,11 @@
 			</div>
 		</div>
 		<div class="row align-items-start">
-			<div class="col">
+			<div class="col text-center">
 				<img src="media/logo.png" height="250" width="350">
 			</div>
 			<div class="col">
-
 				<div class="card text-center text-white bg-dark">
-
 					<div class="card-header">Nueva Partida</div>
 					<div class="card-body">
 						<div class="form-group">
@@ -97,7 +93,6 @@
 		<div class="row">
 			<br>
 		</div>
-
 		<div class="row" id="filaContinuar">
 			<div class="col"></div>
 			<div class="col">
@@ -124,7 +119,6 @@
 			</div>
 			<div class="col"></div>
 		</div>
-
 		<div class="row" id="filaContinuarError">
 			<div class="col"></div>
 			<div class="col">
@@ -138,7 +132,6 @@
 			</div>
 			<div class="col"></div>
 		</div>
-
 	</div>
 	<audio id="audioID">
 		<source src="media/callhelp.wav" type="audio/wav">
