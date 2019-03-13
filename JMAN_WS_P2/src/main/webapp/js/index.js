@@ -9,20 +9,7 @@ window.onload = function() {
 		let estadoGuardado = getEstadoGuardado();
 		if (estadoGuardado == null) {
 			$("#filaContinuar").hide();
-		} else {
-
-			let select = document.getElementById("selectBarcoContinuar");
-
-			let optB = document.createElement('option');
-			optB.value = "Bizmarck";
-			optB.innerHTML = "TODO: nombre del jugador Bizmarck"; // estadoGuardado.;
-			select.appendChild(optB);
-
-			let optH = document.createElement('option');
-			optH.value = "Hood";
-			optH.innerHTML = "TODO: nombre del jugador Hood"; // estadoGuardado.;
-			select.appendChild(optH);
-		}
+		} 	
 	} catch (error) {
 		console.log(error);
 		$("#filaContinuar").hide();
@@ -52,21 +39,17 @@ function getEstadoGuardado() {
 }
 
 $('#buttonNuevaPartida').click(function() {
-	//let nombre = document.getElementById("inputNombreNuevo").value;
 	let b = document.getElementById("selectBarcoNuevo");
 	let barco = b.options[b.selectedIndex].value;
 
 	if (isEmpty(barco)) {
 		mostrarError("Debe seleccionar un barco Capit&aacute;n");
-	}/* else if (isEmpty(nombre)) {
-		mostrarError("Debe ingresar su nombre Capit&aacute;n");
-	}*/ else {
+	} else {
 		parametrosSala = new Object();
 
 		parametrosSala.barcoLocal = barco;
 		parametrosSala.tipoPartida = "NUEVA";
-		//parametrosSala.nombreLocal = nombre;
-
+	
 		sessionStorage.parametrosSala = JSON.stringify(parametrosSala);
 
 		buscarPartida();
@@ -76,14 +59,12 @@ $('#buttonNuevaPartida').click(function() {
 $('#buttonContinuar').click(function() {
 	let b = document.getElementById("selectBarcoContinuar");
 	let barco = b.options[b.selectedIndex].value;
-	let nombre = b.options[b.selectedIndex].text;
-
+	
 	if (isEmpty(barco)) {
 		mostrarError("Identif&iacute;quese Capit&aacute;n");
 	} else {
 		parametrosSala.barcoLocal = barco;
 		parametrosSala.tipoPartida = "GUARDADA";
-		parametrosSala.nombreLocal = nombre;
 		parametrosSala.estadoGuardado = getEstadoGuardado();
 
 		sessionStorage.parametrosSala = JSON.stringify(parametrosSala);
@@ -128,7 +109,6 @@ function enviarPeticionPartida() {
 
 	let jsonMensajeSala = JSON.stringify({
 		"tipoPartida" : parametrosSala.tipoPartida,
-		"nombreJugador" : parametrosSala.nombreLocal,
 		"barco" : parametrosSala.barcoLocal
 	});
 
@@ -148,11 +128,6 @@ $('#buttonCancelarBuscar').click(function() {
 	clearTimeout(timeOutDesconectar);
 	desconectar();
 });
-
-function cambiarBarco() {
-	let b = document.getElementById("selectBarcoContinuar");
-	document.getElementById('inputNombreContinuar').value = b.options[b.selectedIndex].value;
-}
 
 function isEmpty(str) {
 	return (!str || 0 === str.length);
